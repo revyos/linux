@@ -465,7 +465,6 @@ static int pwm_samsung_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 static const struct pwm_ops pwm_samsung_ops = {
 	.request	= pwm_samsung_request,
 	.apply		= pwm_samsung_apply,
-	.owner		= THIS_MODULE,
 };
 
 #ifdef CONFIG_OF

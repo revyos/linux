@@ -188,7 +188,6 @@ static int berlin_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 
 static const struct pwm_ops berlin_pwm_ops = {
 	.apply = berlin_pwm_apply,
-	.owner = THIS_MODULE,
 };
 
 static const struct of_device_id berlin_pwm_match[] = {

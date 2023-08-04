@@ -221,7 +221,6 @@ cros_ec_pwm_xlate(struct pwm_chip *chip, const struct of_phandle_args *args)
 static const struct pwm_ops cros_ec_pwm_ops = {
 	.get_state	= cros_ec_pwm_get_state,
 	.apply		= cros_ec_pwm_apply,
-	.owner		= THIS_MODULE,
 };
 
 /*
