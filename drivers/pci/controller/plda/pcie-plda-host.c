@@ -10,6 +10,7 @@
 
 #include <linux/align.h>
 #include <linux/bitfield.h>
+#include <linux/delay.h>
 #include <linux/irqchip/chained_irq.h>
 #include <linux/irqchip/irq-msi-lib.h>
 #include <linux/irqdomain.h>
@@ -48,6 +49,17 @@ static void plda_handle_msi(struct irq_desc *desc)
 			       bridge_base_addr + ISTATUS_LOCAL);
 		status = readl_relaxed(bridge_base_addr + ISTATUS_MSI);
 		for_each_set_bit(bit, &status, msi->num_vectors) {
+			/*
+			 * As the Starfive JH7110 hardware can't keep two
+			 * inbound post write in order all the time, such as
+			 * MSI messages and NVMe completions.
+			 * If the NVMe completion update later than the MSI,
+			 * an NVMe IRQ handle will miss.
+			 * As a workaround, we will wait a while before
+			 * going to the generic handle here.
+			 */
+			if (port->msi_quirk_delay_us)
+				udelay(port->msi_quirk_delay_us);
 			ret = generic_handle_domain_irq(msi->dev_domain, bit);
 			if (ret)
 				dev_err_ratelimited(dev, "bad MSI IRQ %d\n",
