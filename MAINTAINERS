@@ -18479,6 +18479,7 @@ F:	Documentation/devicetree/bindings/riscv/
 F:	arch/riscv/boot/dts/
 X:	arch/riscv/boot/dts/allwinner/
 X:	arch/riscv/boot/dts/renesas/
+X:	arch/riscv/boot/dts/thead/
 
 RISC-V PMU DRIVERS
 M:	Atish Patra <atishp@atishpatra.org>
@@ -18495,6 +18496,7 @@ M:	Guo Ren <guoren@kernel.org>
 M:	Fu Wei <wefu@redhat.com>
 L:	linux-riscv@lists.infradead.org
 S:	Maintained
+T:	git https://github.com/pdp7/linux.git
 F:	arch/riscv/boot/dts/thead/
 
 RNBD BLOCK DRIVERS
