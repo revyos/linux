@@ -884,6 +884,7 @@ static int dw_pcie_iatu_setup(struct dw_pcie_rp *pp)
 	struct dw_pcie_ob_atu_cfg atu = { 0 };
 	struct resource_entry *entry;
 	int i, ret;
+	resource_size_t res_start, res_size, window_size;
 
 	/* Note the very first outbound ATU is used for CFG IOs */
 	if (!pci->num_ob_windows) {
@@ -921,11 +922,24 @@ static int dw_pcie_iatu_setup(struct dw_pcie_rp *pp)
 		else
 			atu.size = resource_size(entry->res);
 
-		ret = dw_pcie_prog_outbound_atu(pci, &atu);
-		if (ret) {
-			dev_err(pci->dev, "Failed to set MEM range %pr\n",
-				entry->res);
-			return ret;
+		res_start = entry->res->start;
+		res_size = atu.size;
+
+		while (res_size > 0) {
+			window_size = res_size > (pci->region_limit + 1) ?
+					(pci->region_limit + 1) : res_size;
+
+			atu.size = window_size;
+
+			ret = dw_pcie_prog_outbound_atu(pci, &atu);
+			if (ret) {
+				dev_err(pci->dev, "Failed to set MEM range %pr\n",
+					entry->res);
+				return ret;
+			}
+
+			res_start += window_size;
+			res_size -= window_size;
 		}
 	}
 
