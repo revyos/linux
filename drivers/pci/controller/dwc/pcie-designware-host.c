@@ -928,6 +928,11 @@ static int dw_pcie_iatu_setup(struct dw_pcie_rp *pp)
 				return ret;
 			}
 
+			atu.index = ++i;
+
+			if (pci->num_ob_windows <= i)
+				break;
+
 			res_start += window_size;
 			res_size -= window_size;
 		}
