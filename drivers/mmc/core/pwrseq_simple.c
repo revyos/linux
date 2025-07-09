@@ -137,7 +137,9 @@ static int mmc_pwrseq_simple_probe(struct platform_device *pdev)
 	ngpio = of_count_phandle_with_args(dev->of_node, "reset-gpios", "#gpio-cells");
 	if (ngpio == 1) {
 		pwrseq->reset_ctrl = devm_reset_control_get_optional_shared(dev, NULL);
-		if (IS_ERR(pwrseq->reset_ctrl))
+		if (pwrseq->reset_ctrl == ERR_PTR(-ENOENT))
+			pwrseq->reset_ctrl = NULL;
+		else if (IS_ERR(pwrseq->reset_ctrl))
 			return dev_err_probe(dev, PTR_ERR(pwrseq->reset_ctrl),
 					     "reset control not ready\n");
 	}
