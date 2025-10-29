@@ -110,6 +110,8 @@ pub mod pid_namespace;
 pub mod platform;
 pub mod prelude;
 pub mod print;
+#[cfg(CONFIG_RUST_PWM_ABSTRACTIONS)]
+pub mod pwm;
 pub mod rbtree;
 pub mod regulator;
 pub mod revocable;
@@ -117,8 +119,6 @@ pub mod security;
 pub mod seq_file;
 pub mod sizes;
 mod static_assert;
-#[cfg(CONFIG_RUST_PWM_ABSTRACTIONS)]
-pub mod pwm;
 #[doc(hidden)]
 pub mod std_vendor;
 pub mod str;
