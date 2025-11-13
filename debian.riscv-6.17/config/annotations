@@ -1,0 +1,78 @@
+# Menu: HEADER
+# FORMAT: 4
+# ARCH: riscv64
+# FLAVOUR: riscv64-generic
+
+include "../../debian.riscv/config/annotations"
+
+CONFIG_EFI_ZBOOT                                policy<{'riscv64': 'n'}>
+CONFIG_EFI_ZBOOT                                note<'LP: #2002226'>
+
+CONFIG_KERNEL_ZSTD                              policy<{'riscv64': 'n'}>
+CONFIG_KERNEL_ZSTD                              note<'LP: #1931725'>
+
+
+# ---- Annotations without notes ----
+
+CONFIG_AS_VERSION                               policy<{'riscv64': '24200'}>
+CONFIG_CC_HAS_COUNTED_BY                        policy<{'riscv64': '-'}>
+CONFIG_CC_HAS_MIN_FUNCTION_ALIGNMENT            policy<{'riscv64': '-'}>
+CONFIG_CC_HAS_MULTIDIMENSIONAL_NONSTRING        policy<{'riscv64': '-'}>
+CONFIG_CC_HAS_SANE_FUNCTION_ALIGNMENT           policy<{'riscv64': '-'}>
+CONFIG_CC_VERSION_TEXT                          policy<{'riscv64': '"riscv64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0"'}>
+CONFIG_DYNAMIC_FTRACE                           policy<{'riscv64': '-'}>
+CONFIG_DYNAMIC_FTRACE_WITH_ARGS                 policy<{'riscv64': '-'}>
+CONFIG_DYNAMIC_FTRACE_WITH_CALL_OPS             policy<{'riscv64': '-'}>
+CONFIG_DYNAMIC_FTRACE_WITH_DIRECT_CALLS         policy<{'riscv64': '-'}>
+CONFIG_EFI_SBAT_FILE                            policy<{'riscv64': '-'}>
+CONFIG_FPROBE                                   policy<{'riscv64': '-'}>
+CONFIG_FPROBE_EVENTS                            policy<{'riscv64': '-'}>
+CONFIG_FTRACE_MCOUNT_USE_PATCHABLE_FUNCTION_ENTRY policy<{'riscv64': '-'}>
+CONFIG_FTRACE_RECORD_RECURSION                  policy<{'riscv64': '-'}>
+CONFIG_FTRACE_VALIDATE_RCU_IS_WATCHING          policy<{'riscv64': '-'}>
+CONFIG_FUNCTION_ALIGNMENT                       policy<{'riscv64': '0'}>
+CONFIG_FUNCTION_ALIGNMENT_4B                    policy<{'riscv64': '-'}>
+CONFIG_FUNCTION_ALIGNMENT_8B                    policy<{'riscv64': '-'}>
+CONFIG_FUNCTION_GRAPH_RETADDR                   policy<{'riscv64': '-'}>
+CONFIG_FUNCTION_GRAPH_RETVAL                    policy<{'riscv64': '-'}>
+CONFIG_FUNCTION_GRAPH_TRACER                    policy<{'riscv64': '-'}>
+CONFIG_FUNCTION_PROFILER                        policy<{'riscv64': '-'}>
+CONFIG_FUNCTION_TRACER                          policy<{'riscv64': '-'}>
+CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE              policy<{'riscv64': '-'}>
+CONFIG_GCC_VERSION                              policy<{'riscv64': '130300'}>
+CONFIG_HAVE_DYNAMIC_FTRACE                      policy<{'riscv64': '-'}>
+CONFIG_HAVE_DYNAMIC_FTRACE_WITH_ARGS            policy<{'riscv64': '-'}>
+CONFIG_HAVE_DYNAMIC_FTRACE_WITH_CALL_OPS        policy<{'riscv64': '-'}>
+CONFIG_HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS    policy<{'riscv64': '-'}>
+CONFIG_HAVE_FUNCTION_GRAPH_TRACER               policy<{'riscv64': '-'}>
+CONFIG_HAVE_FUNCTION_TRACER                     policy<{'riscv64': '-'}>
+CONFIG_HAVE_KERNEL_BZIP2                        policy<{'riscv64': 'y'}>
+CONFIG_HAVE_KERNEL_LZ4                          policy<{'riscv64': 'y'}>
+CONFIG_HAVE_KERNEL_LZMA                         policy<{'riscv64': 'y'}>
+CONFIG_HAVE_KERNEL_LZO                          policy<{'riscv64': 'y'}>
+CONFIG_HAVE_KERNEL_UNCOMPRESSED                 policy<{'riscv64': 'y'}>
+CONFIG_HAVE_KERNEL_XZ                           policy<{'riscv64': 'y'}>
+CONFIG_HID_BPF                                  policy<{'riscv64': '-'}>
+CONFIG_KERNEL_BZIP2                             policy<{'riscv64': 'n'}>
+CONFIG_KERNEL_LZ4                               policy<{'riscv64': 'n'}>
+CONFIG_KERNEL_LZMA                              policy<{'riscv64': 'n'}>
+CONFIG_KERNEL_LZO                               policy<{'riscv64': 'n'}>
+CONFIG_KERNEL_UNCOMPRESSED                      policy<{'riscv64': 'y'}>
+CONFIG_KERNEL_XZ                                policy<{'riscv64': 'n'}>
+CONFIG_KPROBE_EVENTS_ON_NOTRACE                 policy<{'riscv64': '-'}>
+CONFIG_LD_VERSION                               policy<{'riscv64': '24200'}>
+CONFIG_PAHOLE_VERSION                           policy<{'riscv64': '125'}>
+CONFIG_PSTORE_FTRACE                            policy<{'riscv64': '-'}>
+CONFIG_RISCV_ISA_ZABHA                          policy<{'riscv64': '-'}>
+CONFIG_RISCV_ISA_ZACAS                          policy<{'riscv64': '-'}>
+CONFIG_RUSTC_HAS_COERCE_POINTEE                 policy<{'riscv64': '-'}>
+CONFIG_RUSTC_LLVM_VERSION                       policy<{'riscv64': '190101'}>
+CONFIG_RUSTC_VERSION                            policy<{'riscv64': '108200'}>
+CONFIG_SAMPLE_FPROBE                            policy<{'riscv64': '-'}>
+CONFIG_SAMPLE_FTRACE_DIRECT                     policy<{'riscv64': '-'}>
+CONFIG_SAMPLE_FTRACE_DIRECT_MULTI               policy<{'riscv64': '-'}>
+CONFIG_SAMPLE_FTRACE_OPS                        policy<{'riscv64': '-'}>
+CONFIG_STACK_TRACER                             policy<{'riscv64': '-'}>
+CONFIG_TASKS_RUDE_RCU                           policy<{'riscv64': '-'}>
+CONFIG_TOOLCHAIN_HAS_ZABHA                      policy<{'riscv64': '-'}>
+CONFIG_TOOLCHAIN_HAS_ZACAS                      policy<{'riscv64': '-'}>
