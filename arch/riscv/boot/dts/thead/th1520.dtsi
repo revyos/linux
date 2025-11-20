@@ -37,6 +37,8 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+			operating-points-v2 = <&cpu_opp>;
+			clocks = <&clk CLK_C910>;
 
 			cpu0_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
@@ -64,6 +66,8 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+			operating-points-v2 = <&cpu_opp>;
+			clocks = <&clk CLK_C910>;
 
 			cpu1_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
@@ -91,6 +95,8 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+			operating-points-v2 = <&cpu_opp>;
+			clocks = <&clk CLK_C910>;
 
 			cpu2_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
@@ -118,6 +124,8 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+			operating-points-v2 = <&cpu_opp>;
+			clocks = <&clk CLK_C910>;
 
 			cpu3_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
@@ -133,6 +141,31 @@
 			cache-size = <1048576>;
 			cache-sets = <1024>;
 			cache-unified;
+		};
+	};
+
+	cpu_opp: opp-table-cpu {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp-300000000 {
+			opp-hz = /bits/ 64 <300000000>;
+			opp-microvolt = <600000>;
+		};
+
+		opp-800000000 {
+			opp-hz = /bits/ 64 <800000000>;
+			opp-microvolt = <700000>;
+		};
+
+		opp-1500000000 {
+			opp-hz = /bits/ 64 <1500000000>;
+			opp-microvolt = <800000>;
+		};
+
+		opp-1848000000 {
+			opp-hz = /bits/ 64 <1848000000>;
+			opp-microvolt = <1000000>;
 		};
 	};
 
