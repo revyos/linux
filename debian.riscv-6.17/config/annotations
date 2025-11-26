@@ -282,6 +282,7 @@ CONFIG_POLARFIRE_SOC_SYS_CTRL                   policy<{'riscv64': 'm'}>
 CONFIG_POWER_SEQUENCING_TH1520_GPU              policy<{'riscv64': 'm'}>
 CONFIG_PSTORE_FTRACE                            policy<{'riscv64': '-'}>
 CONFIG_PWM_MICROCHIP_CORE                       policy<{'riscv64': 'm'}>
+CONFIG_PWM_OCORES                               policy<{'riscv64': 'm'}>
 CONFIG_PWM_PXA                                  policy<{'riscv64': 'm'}>
 CONFIG_PWM_SIFIVE                               policy<{'riscv64': 'm'}>
 CONFIG_PWM_SOPHGO_SG2042                        policy<{'riscv64': 'm'}>
