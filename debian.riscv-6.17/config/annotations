@@ -131,6 +131,7 @@ CONFIG_DRM_DW_HDMI_AHB_AUDIO                    policy<{'riscv64': 'm'}>
 CONFIG_DRM_DW_HDMI_CEC                          policy<{'riscv64': 'm'}>
 CONFIG_DRM_DW_HDMI_GP_AUDIO                     policy<{'riscv64': 'm'}>
 CONFIG_DRM_DW_HDMI_I2S_AUDIO                    policy<{'riscv64': 'm'}>
+CONFIG_DRM_PANEL_SITRONIX_ST7701S               policy<{'riscv64': 'm'}>
 CONFIG_DRM_SUN4I                                policy<{'riscv64': 'm'}>
 CONFIG_DRM_SUN6I_DSI                            policy<{'riscv64': 'm'}>
 CONFIG_DRM_SUN8I_DW_HDMI                        policy<{'riscv64': 'm'}>
@@ -286,6 +287,7 @@ CONFIG_PWM_OCORES                               policy<{'riscv64': 'm'}>
 CONFIG_PWM_PXA                                  policy<{'riscv64': 'm'}>
 CONFIG_PWM_SIFIVE                               policy<{'riscv64': 'm'}>
 CONFIG_PWM_SOPHGO_SG2042                        policy<{'riscv64': 'm'}>
+CONFIG_PWM_SUN20I                               policy<{'riscv64': 'y'}>
 CONFIG_PWM_SUN4I                                policy<{'riscv64': 'm'}>
 CONFIG_RAPIDIO                                  policy<{'riscv64': 'm'}>
 CONFIG_REGULATOR_FIXED_VOLTAGE                  policy<{'riscv64': 'y'}>
@@ -327,6 +329,7 @@ CONFIG_SERIO_SUN4I_PS2                          policy<{'riscv64': 'n'}>
 CONFIG_SIFIVE_CCACHE                            policy<{'riscv64': 'y'}>
 CONFIG_SND_SOC_JH7110_PWMDAC                    policy<{'riscv64': 'm'}>
 CONFIG_SND_SOC_JH7110_TDM                       policy<{'riscv64': 'm'}>
+CONFIG_SND_SUN20I_CODEC                         policy<{'riscv64': 'm'}>
 CONFIG_SND_SUN4I_CODEC                          policy<{'riscv64': 'm'}>
 CONFIG_SND_SUN4I_I2S                            policy<{'riscv64': 'm'}>
 CONFIG_SND_SUN4I_SPDIF                          policy<{'riscv64': 'm'}>
