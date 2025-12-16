@@ -1,0 +1,87 @@
+name: sg2042-upstream-cross-kernel
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-kernel:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gcc-14
+            board: revyos
+
+    runs-on: ubuntu-24.04
+    env:
+      mainline_toolchain: https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2025.05.16/
+      mainline_toolchain_file_name: riscv64-glibc-ubuntu-24.04-gcc-nightly-2025.05.16-nightly.tar.xz
+      wget_alias: 'wget --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 0'
+      ARCH: riscv
+      KBUILD_BUILD_USER: riscv
+      KBUILD_BUILD_HOST: riscv-builder
+      KDEB_COMPRESS: xz
+      board: ${{ matrix.board }}
+      CROSS_COMPILE: riscv64-unknown-linux-gnu-
+      DEB_BUILD_PROFILES: pkg.linux-upstream.nokernelheaders
+
+    steps:
+      - name: Update Apt Cache
+        run: sudo apt update
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: true
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: kernel
+
+      - name: Install software
+        run: |
+              sudo apt install -y gdisk dosfstools g++-riscv64-linux-gnu build-essential \
+                                  libncurses-dev gawk flex bison openssl libssl-dev tree \
+                                  dkms libelf-dev libudev-dev libpci-dev libiberty-dev libdw-dev autoconf \
+                                  device-tree-compiler xz-utils devscripts ccache debhelper bc gcc-riscv64-linux-gnu \
+                                  rustc rust-src bindgen rustfmt rust-clippy
+
+      - name: Compile Kernel && Install
+        run: |
+              mkdir -p output
+              ${wget_alias} ${mainline_toolchain}/${mainline_toolchain_file_name}
+              tar -xvf ${mainline_toolchain_file_name} -C /opt
+              export PATH="/opt/riscv/bin:$PATH"
+              ${CROSS_COMPILE}gcc -v
+              pushd kernel
+                export KDEB_PKGVERSION="$(make kernelversion)-$(date "+%Y.%m.%d.%H.%M")+$(git rev-parse --short HEAD)"
+                export RUST_LIB_SRC=/usr/src/rustc-$(rustc --version | cut -d' ' -f2)/library
+                make debian_defconfig
+
+                make -j$(nproc) bindeb-pkg LOCALVERSION="-${board}"
+                sudo dcmd cp -v ../*.changes ${GITHUB_WORKSPACE}/output
+
+                # record commit-id
+                git rev-parse HEAD > kernel-commitid
+                sudo cp -v kernel-commitid ${GITHUB_WORKSPACE}/output
+              popd
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sg2042-kernel-${{ matrix.name }}-${{ matrix.board }}
+          path: output/*
+          retention-days: 30
