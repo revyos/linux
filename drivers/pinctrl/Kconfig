@@ -479,6 +479,7 @@ config PINCTRL_PIC64GX
 	bool "pic64gx gpio2 pinctrl driver"
 	depends on ARCH_MICROCHIP || COMPILE_TEST
 	select GENERIC_PINCONF
+	select REGMAP_MMIO
 	default y
 	help
 	  This selects the pinctrl driver for gpio2 on pic64gx.
