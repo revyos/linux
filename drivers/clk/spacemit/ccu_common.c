@@ -144,7 +144,8 @@ int spacemit_ccu_probe(struct platform_device *pdev)
 	 * are in APBS region. Reference to MPMU syscon is required to check PLL
 	 * status.
 	 */
-	if (of_device_is_compatible(dev->of_node, "spacemit,k1-pll")) {
+	if (of_device_is_compatible(dev->of_node, "spacemit,k1-pll") ||
+		of_device_is_compatible(dev->of_node, "spacemit,k3-pll")) {
 		struct device_node *mpmu = of_parse_phandle(dev->of_node,
 							    "spacemit,mpmu", 0);
 		if (!mpmu)
