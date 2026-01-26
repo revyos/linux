@@ -171,6 +171,7 @@ CONFIG_FUNCTION_PROFILER                        policy<{'riscv64': '-'}>
 CONFIG_FUNCTION_TRACER                          policy<{'riscv64': '-'}>
 CONFIG_GCC_SUPPORTS_DYNAMIC_FTRACE              policy<{'riscv64': '-'}>
 CONFIG_GCC_VERSION                              policy<{'riscv64': '130300'}>
+CONFIG_GENERIC_PINCTRL                          policy<{'riscv64': 'y'}>
 CONFIG_GPIO_PL061                               policy<{'riscv64': 'm'}>
 CONFIG_GPIO_SPACEMIT_K1                         policy<{'riscv64': 'm'}>
 CONFIG_HAVE_DYNAMIC_FTRACE                      policy<{'riscv64': '-'}>
@@ -234,6 +235,8 @@ CONFIG_PHY_SUN50I_USB3                          policy<{'riscv64': 'm'}>
 CONFIG_PHY_SUN6I_MIPI_DPHY                      policy<{'riscv64': 'm'}>
 CONFIG_PHY_SUN9I_USB                            policy<{'riscv64': 'n'}>
 CONFIG_PINCTRL_K230                             policy<{'riscv64': 'y'}>
+CONFIG_PINCTRL_PIC64GX                          policy<{'riscv64': 'y'}>
+CONFIG_PINCTRL_POLARFIRE_SOC                    policy<{'riscv64': 'y'}>
 CONFIG_PINCTRL_SOPHGO_COMMON                    policy<{'riscv64': 'm'}>
 CONFIG_PINCTRL_SOPHGO_CV1800B                   policy<{'riscv64': 'n'}>
 CONFIG_PINCTRL_SOPHGO_CV1812H                   policy<{'riscv64': 'n'}>
@@ -279,6 +282,7 @@ CONFIG_PL320_MBOX                               policy<{'riscv64': 'y'}>
 CONFIG_PL330_DMA                                policy<{'riscv64': 'm'}>
 CONFIG_POLARFIRE_SOC_AUTO_UPDATE                policy<{'riscv64': 'm'}>
 CONFIG_POLARFIRE_SOC_MAILBOX                    policy<{'riscv64': 'm'}>
+CONFIG_POLARFIRE_SOC_SYSCONS                    policy<{'riscv64': 'y'}>
 CONFIG_POLARFIRE_SOC_SYS_CTRL                   policy<{'riscv64': 'm'}>
 CONFIG_POWER_SEQUENCING_TH1520_GPU              policy<{'riscv64': 'm'}>
 CONFIG_PSTORE_FTRACE                            policy<{'riscv64': '-'}>
