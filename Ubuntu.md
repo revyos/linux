@@ -1,4 +1,4 @@
-Name:    linux
+Name:    linux-riscv
 Version: 7.0.0
 Series:  26.04 (resolute)
 Description:
