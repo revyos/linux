@@ -28,7 +28,7 @@ Build-Depends:
  libiberty-dev <!stage1>,
  liblzma-dev <!stage1>,
  libnewt-dev <!stage1>,
- libnuma-dev [amd64 arm64 ppc64el s390x] <!stage1>,
+ libnuma-dev [amd64 arm64 ppc64el s390x riscv64] <!stage1>,
  libpci-dev <!stage1>,
  libssl-dev <!stage1>,
  libstdc++-13-dev,
