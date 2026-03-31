@@ -249,6 +249,8 @@ enum pci_dev_flags {
 	PCI_DEV_FLAGS_MSIX_TOUCH_ENTRY_DATA_FIRST = (__force pci_dev_flags_t) (1 << 13),
 	/* Do not use Configuration Request Retry Status polling in pci_dev_wait() */
 	PCI_DEV_FLAGS_NO_RRS_SV = (__force pci_dev_flags_t) (1 << 14),
+	/* Do not use native PCIe port services (equivalent to pcie_ports=compat) */
+	PCI_DEV_FLAGS_NO_PORT_SERVICES = (__force pci_dev_flags_t) (1 << 15),
 };
 
 enum pci_irq_reroute_variant {
