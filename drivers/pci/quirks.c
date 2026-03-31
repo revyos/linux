@@ -6371,3 +6371,15 @@ static void quirk_no_rrs_sv(struct pci_dev *dev)
 	}
 }
 DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x0a54, quirk_no_rrs_sv);
+
+/*
+ * SG2042's PCIe root ports do not correctly deliver MSI interrupts to
+ * downstream devices when native PCIe port services are enabled. All
+ * services including bwctrl must be disabled, equivalent to pcie_ports=compat.
+ */
+static void quirk_sg2042_no_port_services(struct pci_dev *dev)
+{
+	pci_info(dev, "SG2042: disabling native PCIe port services\n");
+	dev->dev_flags |= PCI_DEV_FLAGS_NO_PORT_SERVICES;
+}
+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOPHGO, 0x2042, quirk_sg2042_no_port_services);
