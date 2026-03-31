@@ -347,6 +347,7 @@ CONFIG_SOPHGO_SG2044_TOPSYS                     policy<{'riscv64': 'n'}>
 CONFIG_SPACEMIT_CCU                             policy<{'riscv64': 'y'}>
 CONFIG_SPACEMIT_K1_CCU                          policy<{'riscv64': 'y'}>
 CONFIG_SPI_PL022                                policy<{'riscv64': 'm'}>
+CONFIG_SPI_POLARFIRE_SOC                        policy<{'riscv64': 'm'}>
 CONFIG_SPI_SG2044_NOR                           policy<{'riscv64': 'n'}>
 CONFIG_SPI_SUN4I                                policy<{'riscv64': 'n'}>
 CONFIG_SPI_SUN6I                                policy<{'riscv64': 'm'}>
