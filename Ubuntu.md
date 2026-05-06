@@ -1,8 +1,8 @@
-Name:    linux-riscv
+Name:    linux-riscv-7.0
 Version: 7.0.0
-Series:  26.04 (resolute)
+Series:  24.04 (noble)
 Description:
-    This is the source code for the Ubuntu linux kernel for the 26.04 series. This
-    source tree is used to produce the flavours: generic, generic-64k.
+    This is the source code for the Ubuntu linux kernel for the 24.04 series. This
+    source tree is used to produce the flavours: generic.
     This kernel is configured to support the widest range of desktop, laptop and
     server configurations.
