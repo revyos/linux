@@ -19,6 +19,8 @@
 		serial0 = &uart0;
 		i2c2 = &i2c2;
 		i2c8 = &i2c8;
+		mmc0 = &emmc;
+		mmc1 = &sdhci0;
 	};
 	reg_dc_in: dc-in-5v {
 		compatible = "regulator-fixed";
