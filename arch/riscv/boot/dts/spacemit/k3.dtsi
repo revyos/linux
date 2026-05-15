@@ -870,7 +870,7 @@
 		};
 
 		syscon_apbc: system-controller@d4015000 {
-			compatible = "spacemit,k3-syscon-apbc";
+			compatible = "spacemit,k3-syscon-apbc", "syscon";
 			reg = <0x0 0xd4015000 0x0 0x1000>;
 			clocks = <&osc_32k>, <&vctcxo_1m>, <&vctcxo_3m>, <&vctcxo_24m>;
 			clock-names = "osc", "vctcxo_1m", "vctcxo_3m", "vctcxo_24m";
@@ -1267,6 +1267,7 @@
 			clocks = <&syscon_apbc CLK_APBC_AIB>,
 				 <&syscon_apbc CLK_APBC_AIB_BUS>;
 			clock-names = "func", "bus";
+			spacemit,apbc = <&syscon_apbc>;
 		};
 
 		uart10: serial@d401f000 {
