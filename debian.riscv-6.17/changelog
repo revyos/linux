@@ -1,3 +1,10 @@
+linux-riscv-6.17 (6.17.0-38.38.1~24.04.1revyos2) noble; urgency=medium
+
+  * Refresh revyos patchset
+  * Update riscv64 config
+
+ -- Han Gao <rabenda.cn@gmail.com>  Sun, 14 Jun 2026 21:26:53 +0800
+
 linux-riscv-6.17 (6.17.0-38.38.1~24.04.1revyos1) noble; urgency=medium
 
   * Apply revyos patchset
