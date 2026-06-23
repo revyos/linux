@@ -344,8 +344,15 @@ CONFIG_RTC_DRV_PL031                            policy<{'riscv64': 'm'}>
 CONFIG_RTC_DRV_POLARFIRE_SOC                    policy<{'riscv64': 'm'}>
 CONFIG_RTC_DRV_SPACEMIT_P1                      policy<{'riscv64': 'm'}>
 CONFIG_RTC_DRV_SUN6I                            policy<{'riscv64': 'y'}>
-CONFIG_RUSTC_LLVM_VERSION                       policy<{'riscv64': '210102'}>
-CONFIG_RUSTC_VERSION                            policy<{'riscv64': '109101'}>
+CONFIG_RUSTC_HAS_COERCE_POINTEE                 policy<{'riscv64': '-'}>
+CONFIG_RUSTC_HAS_FILE_AS_C_STR                  policy<{'riscv64': '-'}>
+CONFIG_RUSTC_HAS_FILE_WITH_NUL                  policy<{'riscv64': '-'}>
+CONFIG_RUSTC_HAS_SLICE_AS_FLATTENED             policy<{'riscv64': '-'}>
+CONFIG_RUSTC_HAS_SPAN_FILE                      policy<{'riscv64': '-'}>
+CONFIG_RUSTC_HAS_UNNECESSARY_TRANSMUTES         policy<{'riscv64': '-'}>
+CONFIG_RUSTC_LLVM_VERSION                       policy<{'riscv64': '0'}>
+CONFIG_RUSTC_VERSION                            policy<{'riscv64': '0'}>
+CONFIG_RUST_IS_AVAILABLE                        policy<{'riscv64': '-'}>
 CONFIG_SAMPLE_FPROBE                            policy<{'riscv64': '-'}>
 CONFIG_SAMPLE_FTRACE_DIRECT                     policy<{'riscv64': '-'}>
 CONFIG_SAMPLE_FTRACE_DIRECT_MULTI               policy<{'riscv64': '-'}>
