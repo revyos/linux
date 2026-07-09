@@ -43,6 +43,17 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	hdmi_connector: connector {
+		compatible = "hdmi-connector";
+		type = "a";
+
+		port {
+			hdmi_connector_in: endpoint {
+				remote-endpoint = <&hdmi_out_connector>;
+			};
+		};
+	};
+
 	reg_usbvbus: usbvbus {
 		compatible = "regulator-fixed";
 		regulator-name = "usbvbus";
@@ -76,6 +87,10 @@
 	clock-frequency = <24000000>;
 };
 
+&de {
+	status = "okay";
+};
+
 &ehci0 {
 	status = "okay";
 };
@@ -90,6 +105,20 @@
 	phy-handle = <&ext_rgmii_phy>;
 	phy-mode = "rgmii-id";
 	phy-supply = <&reg_vcc_3v3>;
+	status = "okay";
+};
+
+&hdmi {
+	status = "okay";
+};
+
+&hdmi_out {
+	hdmi_out_connector: endpoint {
+		remote-endpoint = <&hdmi_connector_in>;
+	};
+};
+
+&hdmi_phy {
 	status = "okay";
 };
 
