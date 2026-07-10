@@ -115,3 +115,7 @@
 		};
 	};
 };
+
+&ths {
+	vref-supply = <&reg_aldo>;
+};
