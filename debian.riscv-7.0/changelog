@@ -1,3 +1,11 @@
+linux-riscv-7.0 (7.0.0-31.31.1~24.04.1revyos1) noble; urgency=medium
+
+  * Apply revyos patchset
+  * Update riscv64 config
+  * Enable libnuma-dev for riscv64
+
+ -- Han Gao <gaohan@iscas.ac.cn>  Mon, 24 Aug 2026 18:35:34 +0800
+
 linux-riscv-7.0 (7.0.0-31.31.1~24.04.1) noble; urgency=medium
 
   * noble/linux-riscv-7.0: 7.0.0-31.31.1~24.04.1 -proposed tracker (LP: #2162409)
