@@ -1294,12 +1294,31 @@ static const struct x86_cpu_id amdgpu_pcie_dynamic_switching_quirks[] = {
 
 static bool amdgpu_device_pcie_dynamic_switching_supported(struct amdgpu_device *adev)
 {
+	struct pci_dev *parent = adev->pdev;
+	static const struct pci_device_id broken_devids[] = {
+		/* SpacemiT K3 */
+		{ PCI_DEVICE(PCI_VENDOR_ID_SPACEMIT,
+			     PCI_DEVICE_ID_SPACEMIT_K3) },
+		{}
+	};
+
 	/* eGPU change speeds based on USB4 fabric conditions */
 	if (dev_is_removable(adev->dev))
 		return true;
 
 	/* Hosts have problems with dynamic speed switching */
 	if (x86_match_cpu(amdgpu_pcie_dynamic_switching_quirks))
+		return false;
+
+	/* skip upstream/downstream switches internal to dGPU */
+	while (parent && parent->vendor == PCI_VENDOR_ID_ATI) {
+		parent = pci_upstream_bridge(parent);
+	}
+
+	if (!parent)
+		return true;
+
+	if (pci_match_id(broken_devids, parent))
 		return false;
 
 	return true;
