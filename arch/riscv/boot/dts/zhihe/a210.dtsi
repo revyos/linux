@@ -542,6 +542,69 @@
 		};
 	};
 
+	power: power-controller {
+		compatible = "zhihe,a210-power-domain";
+		#power-domain-cells = <0>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		power_top: power-domain-top {
+			compatible = "zhihe,a210-pd-top";
+			#power-domain-cells = <0>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+			ddr_ccu: clock-controller@5910000 {
+				compatible = "zhihe,a210-ccu";
+				reg = <0x00 0x05910000 0x0 0x2C>,
+				      <0x00 0x05920000 0x0 0x2C>;
+				zhihe,ccu-dly-time = <0x5E 0x5E>;
+				zhihe,ccu-dly-time-step = <0x3 0x3>;
+			};
+			tee_ccu: clock-controller@27430000 {
+				compatible = "zhihe,a210-ccu";
+				reg = <0x00 0x27430000 0x0 0x2C>;
+				zhihe,ccu-dly-time = <0x5E>;
+				zhihe,ccu-dly-time-step = <0x3>;
+			};
+			cpu_gating_ccu: clock-controller@10140000 {
+				compatible = "zhihe,a210-ccu";
+				reg = <0x00 0x10140000 0x0 0x2C>,
+				      <0x00 0x10140200 0x0 0x2C>,
+				      <0x00 0x10140400 0x0 0x2C>,
+				      <0x00 0x10140600 0x0 0x2C>,
+				      <0x00 0x10140A00 0x0 0x2C>,
+				      <0x00 0x10140C00 0x0 0x2C>,
+				      <0x00 0x10204000 0x0 0x2C>,
+				      <0x00 0x10204200 0x0 0x2C>,
+				      <0x00 0x10204400 0x0 0x2C>,
+				      <0x00 0x10204600 0x0 0x2C>,
+				      <0x00 0x10204800 0x0 0x2C>,
+				      <0x00 0x10204A00 0x0 0x2C>,
+				      <0x00 0x10205400 0x0 0x2C>;
+				zhihe,ccu-dly-time = <0x34 0x34 0x34
+						      0x34 0x34 0x34
+						      0x34 0x34 0x34
+						      0x34 0x34 0x34
+						      0x34>;
+				zhihe,ccu-dly-time-step = <0x2 0x2 0x2
+							   0x2 0x2 0x2
+							   0x2 0x2 0x2
+							   0x2 0x2 0x2
+							   0x2>;
+			};
+			cpu_scaling_ccu: clock-controller@10140800 {
+				compatible = "zhihe,a210-ccu";
+				reg = <0x00 0x10140800 0x0 0x2C>;
+				zhihe,ccu-mode = <1>;
+				zhihe,ccu-dly-time = <0x34>;
+				zhihe,ccu-dly-time-step = <0x2>;
+				zhihe,ccu-ratio = <63>;
+			};
+		};
+	};
+
 	soc {
 		compatible = "simple-bus";
 		#address-cells = <2>;
@@ -868,6 +931,7 @@
 			clocks = <&clk_peri PERI1_GPIO0_PCLK_EN>,
 				 <&clk_peri PERI1_GPIO0_DBCLK_EN>;
 			clock-names = "bus", "db";
+			power-domains = <&power_top>;
 
 			gpio0: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
@@ -892,6 +956,7 @@
 			clocks = <&clk_peri PERI1_GPIO1_PCLK_EN>,
 				 <&clk_peri PERI1_GPIO1_DBCLK_EN>;
 			clock-names = "bus", "db";
+			power-domains = <&power_top>;
 
 			gpio1: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
@@ -916,6 +981,7 @@
 			clocks = <&clk_peri PERI2_GPIO2_PCLK_EN>,
 				 <&clk_peri PERI2_GPIO2_DBCLK_EN>;
 			clock-names = "bus", "db";
+			power-domains = <&power_top>;
 
 			gpio2: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
@@ -940,6 +1006,7 @@
 			clocks = <&clk_peri PERI2_GPIO3_PCLK_EN>,
 				 <&clk_peri PERI2_GPIO3_DBCLK_EN>;
 			clock-names = "bus", "db";
+			power-domains = <&power_top>;
 
 			gpio3: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
@@ -964,6 +1031,7 @@
 			clocks = <&clk_peri PERI3_GPIO4_PCLK_EN>,
 				 <&clk_peri PERI3_GPIO4_DBCLK_EN>;
 			clock-names = "bus", "db";
+			power-domains = <&power_top>;
 
 			gpio4: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
@@ -989,6 +1057,7 @@
 				 <&clk_peri PERI1_I2C0_PCLK_EN>;
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri1 PERI1_I2C0_RST>;
+			power-domains = <&power_top>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -1002,6 +1071,7 @@
 				 <&clk_peri PERI1_I2C1_PCLK_EN>;
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri1 PERI1_I2C1_RST>;
+			power-domains = <&power_top>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -1015,6 +1085,7 @@
 				 <&clk_peri PERI1_I2C2_PCLK_EN>;
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri1 PERI1_I2C2_RST>;
+			power-domains = <&power_top>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -1028,6 +1099,7 @@
 				 <&clk_peri PERI2_I2C3_PCLK_EN>;
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri2 PERI2_I2C3_RST>;
+			power-domains = <&power_top>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -1041,6 +1113,7 @@
 				 <&clk_peri PERI2_I2C4_PCLK_EN>;
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri2 PERI2_I2C4_RST>;
+			power-domains = <&power_top>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -1054,6 +1127,7 @@
 				 <&clk_peri PERI2_I2C5_PCLK_EN>;
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri2 PERI2_I2C5_RST>;
+			power-domains = <&power_top>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -1067,6 +1141,7 @@
 				 <&clk_peri PERI2_I2C6_PCLK_EN>;
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri2 PERI2_I2C6_RST>;
+			power-domains = <&power_top>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -1080,6 +1155,7 @@
 				 <&clk_peri PERI2_I2C7_PCLK_EN>;
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri2 PERI2_I2C7_RST>;
+			power-domains = <&power_top>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
@@ -1095,6 +1171,36 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
+		};
+
+		mbox_920: mailbox@321000 {
+			compatible = "zhihe,a210-mailbox-v2";
+			reg = <0x00 0x00321000 0x0 0x1000>,
+			      <0x00 0x00320000 0x0 0x1000>,
+			      <0x00 0x00311000 0x0 0x1000>;
+			reg-names = "interrupt",
+				    "local0",
+				    "remote0";
+			clocks = <&clk_peri PERI0_MBOX0_PCLK_EN>,
+				 <&clk_peri PERI0_MBOX1_PCLK_EN>;
+			resets = <&rst_peri0 PERI0_MBOX0_PRST>,
+				 <&rst_peri0 PERI0_MBOX1_PRST>;
+			interrupt-parent = <&intc>;
+			interrupts = <336 IRQ_TYPE_LEVEL_HIGH>;
+			zhihe,icu-cpu-id = <0>;
+			#mbox-cells = <2>;
+		};
+
+		aon: aon-subsys@308f8000 {
+			compatible = "zhihe,a210-aon";
+			reg = <0x00 0x308f8000 0x0 0x10000>,
+			      <0x00 0x30842018 0x0 0x4>,
+			      <0x00 0x30846144 0x0 0x4>;
+			reg-names = "aon-base",
+				"aon-reset",
+				"aon-sync";
+			mboxes = <&mbox_920 1 0>;
+			mbox-names = "aon0";
 		};
 	};
 };
