@@ -104,6 +104,7 @@ static int th1520_aon_reboot_probe(struct auxiliary_device *adev,
 
 static const struct auxiliary_device_id th1520_aon_reboot_id_table[] = {
 	{ .name = "th1520_pm_domains.reboot" },
+	{ .name = "a210_aon.reboot" },
 	{},
 };
 MODULE_DEVICE_TABLE(auxiliary, th1520_aon_reboot_id_table);
@@ -118,5 +119,5 @@ static struct auxiliary_driver th1520_aon_reboot_driver = {
 module_auxiliary_driver(th1520_aon_reboot_driver);
 
 MODULE_AUTHOR("Icenowy Zheng <uwu@icenowy.me>");
-MODULE_DESCRIPTION("T-HEAD TH1520 AON-firmware-based reboot driver");
+MODULE_DESCRIPTION("T-HEAD TH1520 and Zhihe A210 AON firmware reboot driver");
 MODULE_LICENSE("GPL");
