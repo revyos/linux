@@ -30092,6 +30092,38 @@ L:	linux-kernel@vger.kernel.org
 S:	Maintained
 F:	arch/x86/kernel/cpu/zhaoxin.c
 
+ZHIHE A210 SOC SUPPORT
+M:	Zhiguo Zhu <zhiguo.zhu@linux.alibaba.com>
+L:	linux-riscv@lists.infradead.org
+S:	Maintained
+F:	Documentation/devicetree/bindings/clock/zhihe,a210-*.yaml
+F:	Documentation/devicetree/bindings/firmware/zhihe,a210-aon.yaml
+F:	Documentation/devicetree/bindings/mailbox/zhihe,a210-mailbox.yaml
+F:	Documentation/devicetree/bindings/pinctrl/zhihe,a210-pinctrl.yaml
+F:	Documentation/devicetree/bindings/power/zhihe,a210-power-domain.yaml
+F:	Documentation/devicetree/bindings/regulator/zhihe,a210-aon-regulator.yaml
+F:	Documentation/devicetree/bindings/reset/zhihe,a210-reset.yaml
+F:	Documentation/devicetree/bindings/riscv/zhihe.yaml
+F:	Documentation/firmware/zhihe/
+F:	arch/riscv/boot/dts/zhihe/
+F:	drivers/clk/zhihe/
+F:	drivers/firmware/zhihe/
+F:	drivers/mailbox/zhihe-a210-mailbox.c
+F:	drivers/pinctrl/pinctrl-a210.c
+F:	drivers/pmdomain/zhihe/
+F:	drivers/regulator/zhihe-a210-aon-regulator.c
+F:	drivers/reset/reset-a210.c
+F:	include/dt-bindings/clock/zhihe,a210-clk.h
+F:	include/dt-bindings/reset/zhihe,a210-resets.h
+F:	include/linux/firmware/zhihe/
+
+ZHIHE A210 DWMAC DRIVER
+M:	Zhiguo Zhu <zhiguo.zhu@linux.alibaba.com>
+L:	netdev@vger.kernel.org
+S:	Maintained
+F:	Documentation/devicetree/bindings/net/zhihe,a210-dwmac.yaml
+F:	drivers/net/ethernet/stmicro/stmmac/dwmac-zhihe.c
+
 ZONED BLOCK DEVICE (BLOCK LAYER)
 M:	Damien Le Moal <dlemoal@kernel.org>
 L:	linux-block@vger.kernel.org
