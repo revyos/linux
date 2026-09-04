@@ -1,0 +1,113 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Shared hardware and operating policy of the A210 SODIMM module. */
+#include "a210.dtsi"
+
+/ {
+	compatible = "zhihe,a210-som", "zhihe,a210";
+
+	aliases {
+	};
+
+	/* Boot firmware replaces this placeholder after DDR training. */
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x00 0x80000000  0x01 0x00000000>; /* 4G */
+		numa-node-id = <0>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		memory@1c000000 {
+			reg = <0x00 0x1c000000 0x00 0x2000000>;
+			no-map;
+		};
+	};
+};
+
+&cluster0_opp {
+	opp0-500000000 {
+		opp-microvolt = <1000000>;
+	};
+	opp0-1200000000 {
+		opp-microvolt = <1000000>;
+	};
+	opp0-1500000000 {
+		opp-microvolt = <1000000>;
+	};
+	opp0-1698000000 {
+		opp-microvolt = <1000000>;
+	};
+	opp0-1896000000 {
+		opp-microvolt = <1000000>;
+	};
+};
+
+&cluster1_opp {
+	opp1-500000000 {
+		opp-microvolt = <1000000>;
+	};
+	opp1-1698000000 {
+		opp-microvolt = <1000000>;
+	};
+	opp1-1896000000 {
+		opp-microvolt = <1000000>;
+	};
+	opp1-2298000000 {
+		opp-microvolt = <1000000>;
+	};
+};
+
+&clk {
+	assigned-clocks = <&clk AUDIO0_PLL_FOUTVCO>, <&clk AUDIO1_PLL_FOUTVCO>,
+			  <&clk VIDEO_PLL_FOUTVCO>, <&clk GMAC_PLL_FOUTVCO>,
+			  <&clk DVFS_PLL_FOUTVCO>, <&clk DPU0_PLL_FOUTVCO>,
+			  <&clk DPU1_PLL_FOUTVCO>, <&clk DPU2_PLL_FOUTVCO>,
+			  <&clk TOP_CFG_ACLK_DIV>, <&clk TOP_PCLK_DIV>,
+			  <&clk SW_AMUX_660_CLK_EN>,
+			  <&clk SW_IOMMU_PTW_330_ACLK_EN>,
+			  <&clk SW_NOC_CCLK_EN>, <&clk TOP_CPUSYS_BUS_CLK_DIV>,
+			  <&clk TOP_CPUSYS_PIC_CLK_DIV>;
+	assigned-clock-rates = <2359296000>, <2528870400>,
+			       <2640000000>, <3000000000>,
+			       <1920000000>, <2376000000>,
+			       <2376000000>, <2376000000>,
+			       <330000000>, <165000000>,
+			       <660000000>, <330000000>,
+			       <950000000>, <1320000000>,
+			       <1000000000>;
+};
+
+&clk_peri {
+	assigned-clocks = <&clk TOP_PERI_TIMER_CLK_MUX>,
+			  <&clk TOP_PERI_I2S_2CH0_SRC_CLK_MUX>,
+			  <&clk TOP_PERI_I2S_2CH1_SRC_CLK_MUX>,
+			  <&clk TOP_PERI_I2S_2CH2_SRC_CLK_MUX>,
+			  <&clk TOP_PERI_I2S_8CH0_SRC_CLK_MUX>,
+			  <&clk TOP_PERI_SPI_SSI_CLK0_DIV>,
+			  <&clk TOP_PERI_SPI_SSI_CLK1_DIV>,
+			  <&clk TOP_PERI_QSPI_SSI_CLK_MUX0>,
+			  <&clk TOP_PERI_QSPI_SSI_CLK_MUX1>,
+			  <&clk TOP_PERI_PDM_MCLK_DIV>,
+			  <&clk TOP_PERI_TDM_SRC_CLK_MUX>,
+			  <&clk TOP_PAD_SENSOR_VCLK0_DIV>,
+			  <&clk TOP_PAD_SENSOR_VCLK1_DIV>,
+			  <&clk TOP_PERI_HIRES_CLK0_DIV>,
+			  <&clk TOP_PERI_HIRES_CLK1_DIV>,
+			  <&clk TOP_PERI_EMMC_REF_CLK_DIV>,
+			  <&clk TOP_PERI_MST_ACLK0_DIV>,
+			  <&clk TOP_PERI_MST_CLK1_DIV>,
+			  <&clk TOP_TEE_CLK_DIV>;
+	assigned-clock-rates = <24000000>, <316108800>,
+			       <316108800>, <316108800>,
+			       <316108800>, <421478400>,
+			       <421478400>, <421478400>,
+			       <421478400>, <8426058>,
+			       <316108800>, <74250000>,
+			       <148500000>, <80000000>,
+			       <80000000>, <786432000>,
+			       <330000000>, <440000000>,
+			       <377142858>;
+};
