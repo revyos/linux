@@ -610,6 +610,14 @@
 			};
 		};
 
+		power_dmac: power-domain-dmac {
+			compatible = "zhihe,a210-pd-dmac";
+			power-domains = <&power_top>;
+			clocks = <&clk_peri AXI_PERI3_MST_ACLK_EN>,
+				 <&clk_peri AXI_PERI3_MST_PCLK_EN>;
+			#power-domain-cells = <0>;
+		};
+
 		power_emmc: power-domain-emmc {
 			compatible = "zhihe,a210-pd-emmc";
 			power-domains = <&power_top>;
@@ -736,6 +744,45 @@
 			>;
 			reg = <0x00 0x18000000 0x0 0x04000000>;
 			riscv,ndev = <351>;
+		};
+
+		dmac0: dma-controller@520000 {
+			compatible = "zhihe,a210-axi-dma", "snps,axi-dma-1.01a";
+			reg = <0x00 0x00520000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <264 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI3_DMAC_ACLK_EN>, <&clk_peri PERI3_DMAC_HCLK_EN>;
+			clock-names = "core-clk", "cfgr-clk";
+			resets = <&rst_peri3 PERI3_DMAC_ARST>, <&rst_peri3 PERI3_DMAC_HRST>;
+			power-domains = <&power_dmac>;
+			#dma-cells = <1>;
+			dma-channels = <16>;
+			snps,block-size = <65536 65536 65536 65536
+					    65536 65536 65536 65536
+					    65536 65536 65536 65536
+					    65536 65536 65536 65536>;
+			snps,priority = <0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0>;
+			snps,dma-masters = <1>;
+			snps,data-width = <4>;
+			snps,axi-max-burst-len = <4>;
+		};
+
+		dmac1: dma-controller@27540000 {
+			compatible = "zhihe,a210-axi-dma", "snps,axi-dma-1.01a";
+			reg = <0x00 0x27540000 0x0 0x4000>;
+			interrupt-parent = <&intc>;
+			interrupts = <259 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri TEE_DMAC_CLKEN>, <&clk_peri TEE_DMAC_CLKEN>;
+			clock-names = "core-clk", "cfgr-clk";
+			resets = <&rst_tee TEE_DMAC_ARST>, <&rst_tee TEE_DMAC_HRST>;
+			#dma-cells = <1>;
+			dma-channels = <4>;
+			snps,block-size = <65536 65536 65536 65536>;
+			snps,priority = <0 0 0 0>;
+			snps,dma-masters = <1>;
+			snps,data-width = <4>;
+			snps,axi-max-burst-len = <16>;
+			status = "disabled";
 		};
 
 		uart0: serial@2014000 {
@@ -1157,6 +1204,8 @@
 			clock-names = "ref", "pclk";
 			resets = <&rst_peri1 PERI1_I2C0_RST>;
 			power-domains = <&power_top>;
+			dmas = <&dmac0 21>, <&dmac0 20>;
+			dma-names = "tx", "rx";
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
