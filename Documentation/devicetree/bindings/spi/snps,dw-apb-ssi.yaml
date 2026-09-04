@@ -59,6 +59,20 @@ allOf:
           minItems: 2
       required:
         - clock-names
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: zhihe,a210-qspi
+    then:
+      properties:
+        resets:
+          minItems: 2
+          maxItems: 2
+    else:
+      properties:
+        resets:
+          maxItems: 1
 
 properties:
   compatible:
@@ -84,6 +98,7 @@ properties:
         items:
           - enum:
               - axiado,ax3005-spi
+              - zhihe,a210-qspi
           - const: snps,dwc-ssi-1.01a
       - description: Vendor controllers which use snps,dwc-ssi-2.00a as fallback
         items:
@@ -131,7 +146,8 @@ properties:
     maxItems: 1
 
   resets:
-    maxItems: 1
+    minItems: 1
+    maxItems: 2
 
   reset-names:
     const: spi
