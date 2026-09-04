@@ -921,10 +921,11 @@ static int stmmac_bus_clks_config(struct stmmac_priv *priv, bool enabled)
 			}
 		}
 	} else {
-		clk_disable_unprepare(plat_dat->stmmac_clk);
-		clk_disable_unprepare(plat_dat->pclk);
+		/* Platform callbacks may access registers through the bus clocks. */
 		if (plat_dat->clks_config)
 			plat_dat->clks_config(plat_dat->bsp_priv, enabled);
+		clk_disable_unprepare(plat_dat->pclk);
+		clk_disable_unprepare(plat_dat->stmmac_clk);
 	}
 
 	return 0;
