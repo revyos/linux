@@ -734,6 +734,17 @@
 				<&clk_peri PERI3_EMMC_X2X_ACLK_M_EN>,
 				<&clk_peri PERI3_EMMC_OSC_CLK_EN>;
 		};
+		power_sdio: power-domain-sdio {
+			compatible = "zhihe,a210-pd-sdio";
+			power-domains = <&power_top>;
+			#power-domain-cells = <0>;
+			clocks = <&clk_peri AXI_PERI3_MST_ACLK_EN>,
+				 <&clk_peri AXI_PERI3_MST_PCLK_EN>,
+				 <&clk_peri PERI3_SDIO_ACLK_EN>,
+				<&clk_peri PERI3_SDIO_X2X_ACLK_S_EN>,
+				<&clk_peri PERI3_SDIO_X2X_ACLK_M_EN>,
+				<&clk_peri PERI3_SDIO_OSC_CLK_EN>;
+		};
 	};
 
 	soc {
@@ -1099,6 +1110,18 @@
 					 <&clk_peri PERI3_EMMC_HCLK_EN>;
 			clock-names = "core", "bus";
 			power-domains = <&power_emmc>;
+		};
+
+		sdio: mmc@510000 {
+			compatible = "zhihe,a210-dwcmshc";
+			reg = <0 0x00510000 0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <337 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI3_EMMC_SDIO_REF_CLK_CG_EN>,
+				 <&clk_peri PERI3_SDIO_HCLK_EN>;
+			clock-names = "core", "bus";
+			power-domains = <&power_sdio>;
+			status = "disabled";
 		};
 
 		clk_aon: clock-controller@30844000 {

@@ -164,6 +164,14 @@
 	status = "okay";
 };
 
+/* J14 exposes SDIO and UART5 for an optional daughterboard. */
+&sdio {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdio_pins>;
+	bus-width = <4>;
+	status = "disabled";
+};
+
 &uart5 {
 	status = "disabled";
 };

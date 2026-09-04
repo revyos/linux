@@ -23,6 +23,39 @@
 		regulator-always-on;
 	};
 
+	/* The Wi-Fi and Bluetooth functions share these module supplies. */
+	reg_wifi_3v3: regulator-wifi-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "wifi-bt-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&aw9535_1 11 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <1000>;
+		regulator-always-on;
+	};
+
+	reg_wifi_1v8: regulator-wifi-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "wifi-bt-1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&aw9535_1 12 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <1000>;
+		regulator-always-on;
+	};
+
+	wifi_pwrseq: wifi-pwrseq {
+		compatible = "mmc-pwrseq-simple";
+		pinctrl-names = "default";
+		pinctrl-0 = <&wifi_enable_pins>;
+		reset-gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+		clocks = <&rtc>;
+		clock-names = "ext_clock";
+		post-power-on-delay-ms = <200>;
+	};
+
 	reg_m2_sata: regulator-m2-sata {
 		compatible = "regulator-fixed";
 		regulator-name = "m2-sata-3v3";
@@ -150,8 +183,46 @@
 	};
 };
 
+&sdio {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdio_pins>;
+	bus-width = <4>;
+	max-frequency = <196608000>;
+	cap-sd-highspeed;
+	sd-uhs-sdr104;
+	cap-sdio-irq;
+	no-sd;
+	no-mmc;
+	non-removable;
+	keep-power-in-suspend;
+	vmmc-supply = <&reg_wifi_3v3>;
+	vqmmc-supply = <&reg_wifi_1v8>;
+	mmc-pwrseq = <&wifi_pwrseq>;
+	status = "okay";
+};
+
 &uart5 {
 	uart-has-rtscts;
+
+	bluetooth {
+		compatible = "realtek,rtl8822cs-bt";
+		pinctrl-names = "default";
+		pinctrl-0 = <&bt_enable_pins>, <&bt_wake_pins>;
+		enable-gpios = <&ao_gpio1 4 GPIO_ACTIVE_HIGH>;
+		device-wake-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
+		host-wake-gpios = <&ao_gpio0 30 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&aon_padctrl {
+	bt_enable_pins: bt-enable-0 {
+		gpio-pins {
+			pins = "AOGPIO1_4";
+			bias-disable;
+			drive-strength = <7>;
+			input-disable;
+		};
+	};
 };
 
 &peri1_padctrl {
@@ -176,6 +247,24 @@
 			input-enable;
 			input-schmitt-enable;
 			slew-rate = <0>;
+		};
+	};
+
+	wifi_enable_pins: wifi-enable-0 {
+		gpio-pins {
+			pins = "GPIO0_14";
+			bias-disable;
+			drive-strength = <7>;
+			input-disable;
+		};
+	};
+
+	bt_wake_pins: bt-wake-0 {
+		gpio-pins {
+			pins = "GPIO0_17";
+			bias-disable;
+			drive-strength = <7>;
+			input-disable;
 		};
 	};
 };

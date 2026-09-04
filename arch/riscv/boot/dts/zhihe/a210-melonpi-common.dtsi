@@ -8,6 +8,7 @@
 	};
 
 	aliases {
+		mmc1 = &sdio;
 		serial0 = &uart0;
 		serial1 = &uart1;
 		serial2 = &uart2;
@@ -468,6 +469,29 @@
 			drive-strength = <25>;
 			input-enable;
 			input-schmitt-enable;
+			slew-rate = <1>;
+		};
+	};
+};
+
+&peri3_padctrl {
+	sdio_pins: sdio-0 {
+		clock-pins {
+			pins = "SDIO_CLK";
+			function = "sdio";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			slew-rate = <1>;
+		};
+
+		data-pins {
+			pins = "SDIO_CMD", "SDIO_DAT0", "SDIO_DAT1",
+			       "SDIO_DAT2", "SDIO_DAT3";
+			function = "sdio";
+			bias-pull-up;
+			drive-strength = <13>;
+			input-enable;
 			slew-rate = <1>;
 		};
 	};
