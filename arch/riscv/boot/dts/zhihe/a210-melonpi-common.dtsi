@@ -50,6 +50,16 @@
 		vin-supply = <&vdd_3v3>;
 		regulator-always-on;
 	};
+
+	hdmi-connector {
+		compatible = "hdmi-connector";
+		type = "a";
+		port {
+			hdmi_connector_in: endpoint {
+				remote-endpoint = <&hdmi_out>;
+			};
+		};
+	};
 };
 
 &peri1_padctrl {
@@ -369,6 +379,34 @@
 
 &uart9 {
 	status = "disabled";
+};
+
+&dc8200 {
+	status = "okay";
+};
+
+&hdmi {
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmi_pins>;
+	status = "okay";
+};
+
+&hdmi_out {
+	remote-endpoint = <&hdmi_connector_in>;
+};
+
+&peri2_padctrl {
+	hdmi_pins: hdmi-0 {
+		hdmi-pins {
+			pins = "GPIO2_25", "GPIO2_30", "GPIO2_31";
+			function = "hdmi";
+			bias-disable;
+			drive-strength = <3>;
+			input-enable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
 };
 
 &ao_gpio0 {

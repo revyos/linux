@@ -715,6 +715,27 @@
 			};
 		};
 
+		power_vo: power-domain-vo {
+			compatible = "zhihe,a210-pd-vo";
+			reg = <0 0x067f1000 0 0x200>,
+			      <0 0x067f0000 0 0x200>,
+			      <0 0x06720000 0 0x1000>,
+			      <0 0x26712000 0 0x1000>;
+			reg-names = "bpc", "pcu", "syscon", "iopmp";
+			power-domains = <&power_top>;
+			clocks = <&clk_vo VO_X2H0_CLK_EN>,
+				 <&clk_vo VO_X2H1_CLK_EN>,
+				 <&clk_vo VO_ARB_PCLK_EN>,
+				 <&clk_vo VO_ARB_ACLK_EN>,
+				 <&clk_vo VO_DFMU_PCLK_EN>,
+				 <&clk_vo VO_DFMU_ACLK_EN>,
+				 <&clk_vo VO_PTW_ACLK_EN>;
+			resets = <&rst_vo VO_X2H0_RST>, <&rst_vo VO_X2H1_RST>,
+				 <&rst_vo VO_ARB_PRST>, <&rst_vo VO_ARB_ARST>,
+				 <&rst_vo VO_DFMU_PRST>, <&rst_vo VO_DFMU_ARST>;
+			#power-domain-cells = <0>;
+		};
+
 		power_dmac: power-domain-dmac {
 			compatible = "zhihe,a210-pd-dmac";
 			power-domains = <&power_top>;
@@ -810,6 +831,12 @@
 		rst_npu: reset-controller@7112200 {
 			compatible = "zhihe,a210-npu-reset";
 			reg = <0x00 0x07112200 0x0 0x10>;
+			#reset-cells = <1>;
+		};
+
+		rst_vo: reset-controller@6720400 {
+			compatible = "zhihe,a210-vo-reset";
+			reg = <0x00 0x06720400 0x0 0x200>;
 			#reset-cells = <1>;
 		};
 
@@ -1368,6 +1395,80 @@
 			num-lanes = <1>;
 			max-link-speed = <3>;
 			status = "disabled";
+		};
+
+		clk_vo: clock-controller@6720200 {
+			compatible = "zhihe,a210-vo-clk";
+			reg = <0 0x06720200 0 0xc>, <0 0x06720048 0 4>;
+			reg-names = "vo-clk", "vo-path-ctrl";
+			#clock-cells = <1>;
+		};
+
+		dc8200: display@6400000 {
+			compatible = "zhihe,a210-dc8200", "verisilicon,dc";
+			reg = <0 0x06400000 0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <218 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_vo VO_DPUC_CLK_EN>,
+				 <&clk_vo VO_DPU_ACLK_EN>,
+				 <&clk_vo VO_DPU_HCLK_EN>,
+				 <&clk_vo VO_CH0_PIXCLK_EN>,
+				 <&clk_vo VO_CH1_PIXCLK_EN>;
+			clock-names = "core", "axi", "ahb", "pix0", "pix1";
+			resets = <&rst_vo VO_DPU_CRST>, <&rst_vo VO_DPU_ARST>,
+				 <&rst_vo VO_DPU_HRST>;
+			reset-names = "core", "axi", "ahb";
+			power-domains = <&power_vo>;
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@1 {
+					reg = <1>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					dc8200_hdmi_out: endpoint@1 {
+						reg = <1>;
+						remote-endpoint = <&hdmi_in>;
+					};
+				};
+			};
+		};
+
+		hdmi: hdmi@6600000 {
+			compatible = "zhihe,a210-dw-hdmi";
+			reg = <0 0x06600000 0 0x40000>;
+			reg-io-width = <4>;
+			interrupt-parent = <&intc>;
+			interrupts = <216 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_vo VO_HDMI_PCLK_EN>,
+				 <&clk_vo VO_HDMI_SFRCLK_EN>,
+				 <&clk_vo VO_CEC_CLK_EN>,
+				 <&clk_vo VO_HDMI_PIXCLK>;
+			clock-names = "iahb", "isfr", "cec", "pix";
+			resets = <&rst_vo VO_HDMI_MAIN_RST>,
+				 <&rst_vo VO_HDMI_PRST>;
+			reset-names = "main", "apb";
+			power-domains = <&power_vo>;
+			assigned-clocks = <&clk_vo VO_HDMI_PIXCLK>;
+			assigned-clock-parents = <&clk_vo VO_CH1_PIXCLK_EN>;
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					reg = <0>;
+					hdmi_in: endpoint {
+						remote-endpoint = <&dc8200_hdmi_out>;
+					};
+				};
+				port@1 {
+					reg = <1>;
+					hdmi_out: endpoint { };
+				};
+			};
 		};
 
 		gmac0_sys: syscon@210f000 {

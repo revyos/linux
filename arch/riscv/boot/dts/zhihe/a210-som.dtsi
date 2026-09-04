@@ -23,8 +23,21 @@
 		#size-cells = <2>;
 		ranges;
 
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0 0x10000000>;
+			alloc-ranges = <0 0x80000000 0 0x80000000>;
+			linux,cma-default;
+		};
+
 		memory@1c000000 {
 			reg = <0x00 0x1c000000 0x00 0x2000000>;
+			no-map;
+		};
+
+		framebuffer: framebuffer@100000000 {
+			reg = <0x01 0x00 0x00 0x5000000>;
 			no-map;
 		};
 	};
