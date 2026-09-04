@@ -20,5 +20,6 @@ source "drivers/pmdomain/tegra/Kconfig"
 source "drivers/pmdomain/thead/Kconfig"
 source "drivers/pmdomain/ti/Kconfig"
 source "drivers/pmdomain/xilinx/Kconfig"
+source "drivers/pmdomain/zhihe/Kconfig"
 
 endmenu
