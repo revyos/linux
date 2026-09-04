@@ -21,6 +21,7 @@
 #include <linux/sched_clock.h>
 #include <linux/io-64-nonatomic-lo-hi.h>
 #include <linux/interrupt.h>
+#include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/limits.h>
 #include <clocksource/timer-riscv.h>
@@ -32,13 +33,66 @@
 static DEFINE_STATIC_KEY_FALSE(riscv_sstc_available);
 static bool riscv_timer_cannot_wake_cpu;
 
+#define A210_CLINT_STIMECMP_OFFSET	0xd000
+
+static u8 __iomem *a210_stimecmp_base;
+static unsigned int a210_stimecmp_count;
+
+static bool a210_stimecmp_set_next(u64 next_tval)
+{
+	unsigned long hartid = cpuid_to_hartid_map(raw_smp_processor_id());
+	void __iomem *stimecmp;
+
+	if (!a210_stimecmp_base || hartid >= a210_stimecmp_count)
+		return false;
+
+	stimecmp = a210_stimecmp_base + hartid * sizeof(next_tval);
+	writel_relaxed(U32_MAX, stimecmp);
+	writel_relaxed(upper_32_bits(next_tval), stimecmp + sizeof(u32));
+	writel_relaxed(lower_32_bits(next_tval), stimecmp);
+
+	return true;
+}
+
+static void __init a210_stimecmp_init(void)
+{
+	struct device_node *np;
+	struct resource res;
+	resource_size_t size;
+
+	if (!of_machine_is_compatible("zhihe,a210"))
+		return;
+
+	np = of_find_compatible_node(NULL, NULL, "thead,c900-clint");
+	if (!np)
+		return;
+
+	if (of_address_to_resource(np, 0, &res))
+		goto out_put;
+
+	size = resource_size(&res);
+	if (size <= A210_CLINT_STIMECMP_OFFSET)
+		goto out_put;
+
+	size -= A210_CLINT_STIMECMP_OFFSET;
+	a210_stimecmp_base = ioremap(res.start + A210_CLINT_STIMECMP_OFFSET, size);
+	if (!a210_stimecmp_base)
+		goto out_put;
+
+	a210_stimecmp_count = size / sizeof(u64);
+	pr_info("using A210 S-mode timer compare registers\n");
+
+out_put:
+	of_node_put(np);
+}
+
 static void riscv_clock_event_stop(void)
 {
 	if (static_branch_likely(&riscv_sstc_available)) {
 		csr_write(CSR_STIMECMP, ULONG_MAX);
 		if (IS_ENABLED(CONFIG_32BIT))
 			csr_write(CSR_STIMECMPH, ULONG_MAX);
-	} else {
+	} else if (!a210_stimecmp_set_next(U64_MAX)) {
 		sbi_set_timer(U64_MAX);
 	}
 }
@@ -56,7 +110,7 @@ static int riscv_clock_next_event(unsigned long delta,
 #else
 		csr_write(CSR_STIMECMP, next_tval);
 #endif
-	} else
+	} else if (!a210_stimecmp_set_next(next_tval))
 		sbi_set_timer(next_tval);
 
 	return 0;
@@ -222,6 +276,8 @@ static int __init riscv_timer_init_dt(struct device_node *n)
 
 	if (cpuid != smp_processor_id())
 		return 0;
+
+	a210_stimecmp_init();
 
 	child = of_find_compatible_node(NULL, NULL, "riscv,timer");
 	if (child) {

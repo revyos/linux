@@ -719,7 +719,7 @@
 				&cpu6_intc  3 &cpu6_intc  7
 				&cpu7_intc  3 &cpu7_intc  7
 			>;
-			reg = <0x00 0x1c000000 0x0 0x0000d000>;
+			reg = <0x00 0x1c000000 0x0 0x0000d800>;
 		};
 
 		clk: clock-controller@260000 {
