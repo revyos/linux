@@ -14,6 +14,27 @@ description:
 
 allOf:
   - $ref: dma-controller.yaml#
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: zhihe,a210-axi-dma
+    then:
+      properties:
+        dma-channels:
+          maximum: 16
+        snps,priority:
+          maxItems: 16
+        snps,block-size:
+          maxItems: 16
+    else:
+      properties:
+        dma-channels:
+          maximum: 8
+        snps,priority:
+          maxItems: 8
+        snps,block-size:
+          maxItems: 8
 
 properties:
   compatible:
@@ -27,6 +48,7 @@ properties:
           - enum:
               - altr,agilex5-axi-dma
               - sophgo,cv1800b-axi-dma
+              - zhihe,a210-axi-dma
           - const: snps,axi-dma-1.01a
 
   reg:
@@ -66,7 +88,7 @@ properties:
 
   dma-channels:
     minimum: 1
-    maximum: 8
+    maximum: 16
 
   dma-noncoherent: true
 
@@ -94,14 +116,14 @@ properties:
       Channel priority specifier associated with the DMA channels.
     $ref: /schemas/types.yaml#/definitions/uint32-array
     minItems: 1
-    maxItems: 8
+    maxItems: 16
 
   snps,block-size:
     description: |
       Channel block size specifier associated with the DMA channels.
     $ref: /schemas/types.yaml#/definitions/uint32-array
     minItems: 1
-    maxItems: 8
+    maxItems: 16
 
   snps,axi-max-burst-len:
     description: |
@@ -131,6 +153,7 @@ if:
       contains:
         enum:
           - starfive,jh7110-axi-dma
+          - zhihe,a210-axi-dma
 then:
   properties:
     resets:
