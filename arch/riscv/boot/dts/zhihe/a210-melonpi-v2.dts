@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/dts-v1/;
+
+#include "a210-melonpi-common.dtsi"
+#include <dt-bindings/usb/pd.h>
+
+/ {
+	model = "Melon Pi V2";
+	compatible = "zhihe,a210-melonpi-v2", "zhihe,a210-som",
+		     "zhihe,a210";
+};
+
+&uart5 {
+	uart-has-rtscts;
+};

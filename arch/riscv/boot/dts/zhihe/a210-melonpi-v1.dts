@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/dts-v1/;
+
+#include "a210-melonpi-common.dtsi"
+
+/ {
+	model = "Melon Pi V1";
+	compatible = "zhihe,a210-melonpi-v1", "zhihe,a210-som",
+		     "zhihe,a210";
+};
+
+&uart5 {
+	status = "disabled";
+};
+
+/* UART8 needs the RS232/RS485 switch configured for the attachment. */
+&uart8 {
+	status = "disabled";
+};
