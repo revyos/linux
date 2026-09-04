@@ -542,6 +542,12 @@
 		};
 	};
 
+	stmmac_axi_setup: stmmac-axi-config {
+		snps,wr_osr_lmt = <7>;
+		snps,rd_osr_lmt = <7>;
+		snps,blen = <16 8 4 0 0 0 0>;
+	};
+
 	power: power-controller {
 		compatible = "zhihe,a210-power-domain";
 		#power-domain-cells = <0>;
@@ -869,6 +875,76 @@
 			clocks = <&aon_110m>, <&osc_24m>, <&aon_rc>, <&osc_32k>;
 			clock-names = "high", "osc", "rc", "rtc";
 			#clock-cells = <1>;
+		};
+
+		gmac0_sys: syscon@210f000 {
+			compatible = "zhihe,a210-gmac-syscon", "syscon";
+			reg = <0x00 0x0210f000 0x0 0x20>;
+		};
+
+		gmac1_sys: syscon@211f000 {
+			compatible = "zhihe,a210-gmac-syscon", "syscon";
+			reg = <0x00 0x0211f000 0x0 0x20>;
+		};
+
+		gmac0: ethernet@2100000 {
+			compatible = "zhihe,a210-dwmac", "snps,dwmac-5.40a";
+			reg = <0x00 0x02100000 0x0 0x10000>;
+			reg-names = "gmac";
+			interrupt-parent = <&intc>;
+			interrupts = <277 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks = <&clk_peri PERI1_GMAC0_ACLK_EN>,
+				 <&clk_peri PERI1_GMAC0_HCLK_EN>,
+				 <&clk_peri PERI1_X2H_GMAC0_ACLK_EN>,
+				 <&clk_peri PERI1_X2H_GMAC0_HCLK_EN>;
+			clock-names = "stmmaceth", "pclk", "x2h_aclk", "x2h_hclk";
+			resets = <&rst_peri1 PERI1_GMAC0_RST>,
+				 <&rst_peri1 PERI1_GMAC0_X2H_RST>;
+			reset-names = "stmmaceth", "ahb";
+			power-domains = <&power_top>;
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			snps,axi-config = <&stmmac_axi_setup>;
+			snps,tso;
+			zhihe,gmacsys = <&gmac0_sys>;
+			status = "disabled";
+
+			mdio0: mdio {
+				compatible = "snps,dwmac-mdio";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+
+		gmac1: ethernet@2110000 {
+			compatible = "zhihe,a210-dwmac", "snps,dwmac-5.40a";
+			reg = <0x00 0x02110000 0x0 0x10000>;
+			reg-names = "gmac";
+			interrupt-parent = <&intc>;
+			interrupts = <288 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks = <&clk_peri PERI1_GMAC1_ACLK_EN>,
+				 <&clk_peri PERI1_GMAC1_HCLK_EN>,
+				 <&clk_peri PERI1_X2H_GMAC1_ACLK_EN>,
+				 <&clk_peri PERI1_X2H_GMAC1_HCLK_EN>;
+			clock-names = "stmmaceth", "pclk", "x2h_aclk", "x2h_hclk";
+			resets = <&rst_peri1 PERI1_GMAC1_RST>,
+				 <&rst_peri1 PERI1_GMAC1_X2H_RST>;
+			reset-names = "stmmaceth", "ahb";
+			power-domains = <&power_top>;
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			snps,axi-config = <&stmmac_axi_setup>;
+			snps,tso;
+			zhihe,gmacsys = <&gmac1_sys>;
+			status = "disabled";
+
+			mdio1: mdio {
+				compatible = "snps,dwmac-mdio";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
 		};
 
 		aon_padctrl: aon-padctrl@30848000 {

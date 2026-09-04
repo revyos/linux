@@ -6,6 +6,8 @@
 	compatible = "zhihe,a210-som", "zhihe,a210";
 
 	aliases {
+		ethernet0 = &gmac0;
+		ethernet1 = &gmac1;
 		mmc0 = &emmc;
 	};
 
@@ -25,6 +27,34 @@
 			reg = <0x00 0x1c000000 0x00 0x2000000>;
 			no-map;
 		};
+	};
+};
+
+&gmac0 {
+	phy-mode = "rgmii-id";
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&gmac0_pins>;
+	phy-handle = <&phy0>;
+};
+
+&mdio0 {
+	phy0: ethernet-phy@0 {
+		reg = <0x0>;
+	};
+};
+
+&gmac1 {
+	phy-mode = "rgmii-id";
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&gmac1_pins>;
+	phy-handle = <&phy1>;
+};
+
+&mdio1 {
+	phy1: ethernet-phy@0 {
+		reg = <0x0>;
 	};
 };
 
@@ -70,6 +100,94 @@
 	};
 	opp1-2298000000 {
 		opp-microvolt = <1000000>;
+	};
+};
+
+&peri1_padctrl {
+	gmac0_pins: gmac0-0 {
+		txclk-pins {
+			pins = "GPIO0_0", /* GMAC0_TX_CLK */
+			       "GPIO0_12"; /* GMAC0_MDC */
+			function = "gmac0";
+			bias-disable;
+			drive-strength = <13>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		tx-pins {
+			pins = "GPIO0_2", /* GMAC0_TXEN */
+			       "GPIO0_3", /* GMAC0_TXD0 */
+			       "GPIO0_4", /* GMAC0_TXD1 */
+			       "GPIO0_5", /* GMAC0_TXD2 */
+			       "GPIO0_6"; /* GMAC0_TXD3 */
+			function = "gmac0";
+			bias-disable;
+			drive-strength = <20>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		rx-pins {
+			pins = "GPIO0_1",  /* GMAC0_RX_CLK */
+			       "GPIO0_7",  /* GMAC0_RXDV */
+			       "GPIO0_8",  /* GMAC0_RXD0 */
+			       "GPIO0_9",  /* GMAC0_RXD1 */
+			       "GPIO0_10", /* GMAC0_RXD2 */
+			       "GPIO0_11", /* GMAC0_RXD3 */
+			       "GPIO0_13"; /* GMAC0_MDIO */
+			function = "gmac0";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+
+	gmac1_pins: gmac1-0 {
+		txclk-pins {
+			pins = "GPIO1_2", /* GMAC1_TX_CLK */
+			       "GPIO1_14"; /* GMAC1_MDC */
+			function = "gmac1";
+			bias-disable;
+			drive-strength = <13>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		tx-pins {
+			pins = "GPIO1_4", /* GMAC1_TXEN */
+			       "GPIO1_5", /* GMAC1_TXD0 */
+			       "GPIO1_6", /* GMAC1_TXD1 */
+			       "GPIO1_7", /* GMAC1_TXD2 */
+			       "GPIO1_8"; /* GMAC1_TXD3 */
+			function = "gmac1";
+			bias-disable;
+			drive-strength = <20>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		rx-pins {
+			pins = "GPIO1_3",  /* GMAC1_RX_CLK */
+			       "GPIO1_9",  /* GMAC1_RXDV */
+			       "GPIO1_10",  /* GMAC1_RXD0 */
+			       "GPIO1_11",  /* GMAC1_RXD1 */
+			       "GPIO1_12", /* GMAC1_RXD2 */
+			       "GPIO1_13", /* GMAC1_RXD3 */
+			       "GPIO1_15"; /* GMAC1_MDIO */
+			function = "gmac1";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
 	};
 };
 
