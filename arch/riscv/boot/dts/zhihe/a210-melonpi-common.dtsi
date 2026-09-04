@@ -390,10 +390,57 @@
 	pinctrl-0 = <&aoi2c1_pins>;
 	clock-frequency = <100000>;
 	status = "okay";
+
+	aw9535_0: gpio@20 {
+		compatible = "awinic,aw9535";
+		reg = <0x20>;
+		vcc-supply = <&vdd_1v8>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	aw9535_1: gpio@21 {
+		compatible = "awinic,aw9535";
+		reg = <0x21>;
+		vcc-supply = <&vdd_1v8>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+};
+
+&aw9535_1 {
+	download-vbus-off-hog {
+		gpio-hog;
+		gpios = <9 GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "download-vbus-off";
+	};
 };
 
 &i2c4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c4_pins>;
 	clock-frequency = <400000>;
+
+	rtc: rtc@51 {
+		compatible = "nxp,pcf8563";
+		reg = <0x51>;
+		#clock-cells = <0>;
+	};
+};
+
+&peri2_padctrl {
+	i2c4_pins: i2c4-0 {
+		bus-pins {
+			pins = "GPIO2_26", "GPIO2_27";
+			function = "i2c4";
+			bias-disable;
+			drive-strength = <25>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <1>;
+		};
+	};
 };
 
 &i2c5 {

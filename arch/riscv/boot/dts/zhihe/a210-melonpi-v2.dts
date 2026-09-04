@@ -8,8 +8,33 @@
 	model = "Melon Pi V2";
 	compatible = "zhihe,a210-melonpi-v2", "zhihe,a210-som",
 		     "zhihe,a210";
+
+	/* GPIO0_30 enables the TPS259261 supply for the two-pin fan. */
+	reg_fan: regulator-fan {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&fan_enable_pins>;
+		regulator-name = "fan-5v";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio0 30 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-boot-on;
+		regulator-always-on;
+	};
 };
 
 &uart5 {
 	uart-has-rtscts;
+};
+
+&peri1_padctrl {
+	fan_enable_pins: fan-enable-0 {
+		gpio-pins {
+			pins = "GPIO0_30";
+			bias-disable;
+			drive-strength = <7>;
+			input-disable;
+		};
+	};
 };

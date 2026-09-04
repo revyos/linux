@@ -7,6 +7,18 @@
 	model = "Melon Pi V1";
 	compatible = "zhihe,a210-melonpi-v1", "zhihe,a210-som",
 		     "zhihe,a210";
+
+	/* U31 P02 controls the TPS25923 feeding the two-pin fan. */
+	reg_fan: regulator-fan {
+		compatible = "regulator-fixed";
+		regulator-name = "fan-5v";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&aw9535_0 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-boot-on;
+		regulator-always-on;
+	};
 };
 
 &uart5 {
