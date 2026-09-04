@@ -403,7 +403,8 @@ static int dw_spi_mmio_probe(struct platform_device *pdev)
 		return PTR_ERR(dwsmmio->pclk);
 
 	/* find an optional reset controller */
-	dwsmmio->rstc = devm_reset_control_get_optional_exclusive(&pdev->dev, "spi");
+	dwsmmio->rstc =
+		devm_reset_control_array_get_optional_exclusive(&pdev->dev);
 	if (IS_ERR(dwsmmio->rstc))
 		return PTR_ERR(dwsmmio->rstc);
 
@@ -509,6 +510,7 @@ static const struct of_device_id dw_spi_mmio_of_match[] = {
 	{ .compatible = "amazon,alpine-dw-apb-ssi", .data = dw_spi_alpine_init},
 	{ .compatible = "renesas,rzn1-spi", .data = dw_spi_pssi_init},
 	{ .compatible = "snps,dwc-ssi-1.01a", .data = dw_spi_hssi_init},
+	{ .compatible = "zhihe,a210-qspi", .data = dw_spi_hssi_init},
 	{ .compatible = "snps,dwc-ssi-2.00a", .data = dw_spi_hssi_init},
 	{ .compatible = "intel,keembay-ssi", .data = dw_spi_hssi_no_dma_init},
 	{
