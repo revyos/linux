@@ -2180,6 +2180,16 @@ static const struct dwcmshc_pltfm_data sdhci_dwcmshc_th1520_pdata = {
 	.init = th1520_init,
 };
 
+static const struct dwcmshc_pltfm_data sdhci_dwcmshc_a210_pdata = {
+	.pdata = {
+		.ops = &sdhci_dwcmshc_th1520_ops,
+		.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN |
+			  SDHCI_QUIRK_SINGLE_POWER_WRITE,
+		.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+	},
+	.init = th1520_init,
+};
+
 static const struct dwcmshc_pltfm_data sdhci_dwcmshc_cv18xx_pdata = {
 	.pdata = {
 		.ops = &sdhci_dwcmshc_cv18xx_ops,
@@ -2376,6 +2386,10 @@ static const struct of_device_id sdhci_dwcmshc_dt_ids[] = {
 	{
 		.compatible = "hpe,gsc-dwcmshc",
 		.data = &sdhci_dwcmshc_hpe_gsc_pdata,
+	},
+	{
+		.compatible = "zhihe,a210-dwcmshc",
+		.data = &sdhci_dwcmshc_a210_pdata,
 	},
 	{},
 };
