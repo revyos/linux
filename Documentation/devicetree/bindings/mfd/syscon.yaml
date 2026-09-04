@@ -132,6 +132,7 @@ properties:
               - ti,j784s4-acspcie-proxy-ctrl
               - ti,j784s4-pcie-ctrl
               - ti,keystone-pllctrl
+              - zhihe,a210-gmac-syscon
           - const: syscon
       - items:
           - enum:
