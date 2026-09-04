@@ -918,6 +918,28 @@
 			riscv,ndev = <351>;
 		};
 
+		peri2_ctrl: syscon@8400000 {
+			compatible = "zhihe,a210-peri2-ctrl", "syscon";
+			reg = <0 0x08400000 0 0x8>;
+		};
+
+		i2s1: i2s@840a000 {
+			compatible = "zhihe,a210-i2s";
+			zhihe,syscon = <&peri2_ctrl 0 0x1>;
+			reg = <0 0x0840a000 0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <302 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI2_I2S1_PCLK_EN>,
+				 <&clk_peri PERI2_I2S1_SRC_CLK_EN>;
+			clock-names = "pclk", "mclk";
+			resets = <&rst_peri2 PERI2_I2S1_PRST>;
+			power-domains = <&power_top>;
+			dmas = <&dmac0 38>, <&dmac0 37>;
+			dma-names = "tx", "rx";
+			#sound-dai-cells = <0>;
+			status = "disabled";
+		};
+
 		dmac0: dma-controller@520000 {
 			compatible = "zhihe,a210-axi-dma", "snps,axi-dma-1.01a";
 			reg = <0x00 0x00520000 0x0 0x4000>;

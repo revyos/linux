@@ -23,6 +23,31 @@
 		regulator-always-on;
 	};
 
+	sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "Melon Pi Audio";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,mclk-fs = <256>;
+		simple-audio-card,bitclock-master = <&audio_cpu>;
+		simple-audio-card,frame-master = <&audio_cpu>;
+		simple-audio-card,aux-devs = <&headphone_switch>;
+		simple-audio-card,widgets = "Headphone", "Headphones";
+		simple-audio-card,routing =
+			"Headphone INL", "LOUT",
+			"Headphone INR", "ROUT",
+			"Headphones", "Headphone OUTL",
+			"Headphones", "Headphone OUTR";
+
+		audio_cpu: simple-audio-card,cpu {
+			sound-dai = <&i2s1>;
+			system-clock-direction-out;
+		};
+
+		simple-audio-card,codec {
+			sound-dai = <&es8156>;
+		};
+	};
+
 	/* The Wi-Fi and Bluetooth functions share these module supplies. */
 	reg_wifi_3v3: regulator-wifi-3v3 {
 		compatible = "regulator-fixed";
@@ -358,4 +383,10 @@
 			input-schmitt-enable;
 		};
 	};
+};
+
+&i2s1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s1_pins>;
+	status = "okay";
 };

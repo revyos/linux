@@ -21,6 +21,35 @@
 		serial9 = &uart9;
 	};
 
+	reg_audio_3v3: regulator-audio-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "audio-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		vin-supply = <&vdd_3v3>;
+		gpio = <&aw9535_1 1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <1000>;
+	};
+
+	reg_audio_1v8: regulator-audio-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "audio-1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		vin-supply = <&vdd_1v8>;
+		gpio = <&aw9535_1 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <1000>;
+	};
+
+	headphone_switch: audio-amplifier {
+		compatible = "gpio-audio-amp-stereo";
+		mute-gpios = <&aw9535_0 11 GPIO_ACTIVE_LOW>;
+		vdd-supply = <&reg_audio_3v3>;
+		sound-name-prefix = "Headphone";
+	};
+
 	reg_usb_host: regulator-usb-host {
 		compatible = "regulator-fixed";
 		regulator-name = "usb-host-vbus";
@@ -541,5 +570,42 @@
 };
 
 &i2c5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c5_pins>;
 	clock-frequency = <100000>;
+
+	es8156: codec@8 {
+		compatible = "everest,es8156";
+		reg = <8>;
+		avdd-supply = <&reg_audio_3v3>;
+		dvdd-supply = <&reg_audio_1v8>;
+		pvdd-supply = <&reg_audio_1v8>;
+		#sound-dai-cells = <0>;
+	};
+};
+
+&peri2_padctrl {
+	i2s1_pins: i2s1-0 {
+		i2s-pins {
+			pins = "GPIO2_2", "GPIO2_3", "GPIO2_4",
+			       "GPIO2_5", "GPIO2_6";
+			function = "i2s1";
+			bias-disable;
+			drive-strength = <13>;
+			input-enable;
+			slew-rate = <0>;
+		};
+	};
+
+	i2c5_pins: i2c5-0 {
+		bus-pins {
+			pins = "GPIO2_28", "GPIO2_29";
+			function = "i2c5";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 };
