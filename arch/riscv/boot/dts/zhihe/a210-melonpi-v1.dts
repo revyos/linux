@@ -172,3 +172,9 @@
 &uart8 {
 	status = "disabled";
 };
+
+
+&usb3 {
+	/* J7 needs support for the MPF52002 Type-C controller at U53. */
+	status = "disabled";
+};

@@ -1117,6 +1117,49 @@
 			#clock-cells = <1>;
 		};
 
+		usb31_usb2_phy: phy@8001080 {
+			compatible = "zhihe,a210-usb31-usb2-phy";
+			reg = <0 0x08001080 0 0x28>;
+			clocks = <&clk_usb USB31_PCLK_EN>;
+			clock-names = "apb";
+			resets = <&rst_usb USB_USB31_PHY_RST>;
+			reset-names = "phy";
+			power-domains = <&power_usb>;
+			#phy-cells = <0>;
+			status = "disabled";
+		};
+
+		usb3_phy: phy@807c000 {
+			compatible = "zhihe,a210-c10-phy";
+			reg = <0 0x0807c000 0 0x100>;
+			clocks = <&clk_usb C10PHY_PCLK_EN>,
+				 <&clk_usb USB31_REF_CLK_EN>,
+				 <&clk_usb C10PHY_SUSPEND_CLK_EN>;
+			clock-names = "apb", "ref", "suspend";
+			resets = <&rst_usb USB_C10PHY_APBS_PRST>,
+				 <&rst_usb USB_C10PHY_PHY_RST>;
+			reset-names = "apb", "phy";
+			power-domains = <&power_usb>;
+			#phy-cells = <0>;
+			status = "disabled";
+		};
+
+		usb3: usb@8100000 {
+			compatible = "zhihe,a210-dwc3", "snps,dwc3";
+			reg = <0 0x08100000 0 0x100000>;
+			interrupt-parent = <&intc>;
+			interrupts = <183 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_usb USB31_BUS_CLK_EN>,
+				 <&clk_usb USB31_REF_CLK_EN>,
+				 <&clk_usb USB31_SUSPEND_CLK_EN>;
+			clock-names = "bus_early", "ref", "suspend";
+			resets = <&rst_usb USB_USB31_VCC_RST>;
+			phys = <&usb31_usb2_phy>, <&usb3_phy>;
+			phy-names = "usb2-phy", "usb3-phy";
+			power-domains = <&power_usb>;
+			status = "disabled";
+		};
+
 		usb2_phy0: phy@8300000 {
 			compatible = "zhihe,a210-usb2-phy";
 			reg = <0 0x08300000 0 0x20>;
