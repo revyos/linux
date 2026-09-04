@@ -41,6 +41,15 @@
 			no-map;
 		};
 	};
+
+	reg_vref_1v8: regulator-adc-vref {
+		compatible = "regulator-fixed";
+		regulator-name = "vref-1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
 };
 
 &gmac0 {
@@ -408,6 +417,11 @@
 			       <80000000>, <786432000>,
 			       <330000000>, <440000000>,
 			       <377142858>;
+};
+
+&adc {
+	vref-supply = <&reg_vref_1v8>;
+	status = "okay";
 };
 
 &power_gpu {

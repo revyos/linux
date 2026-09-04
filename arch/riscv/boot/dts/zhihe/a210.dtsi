@@ -1167,6 +1167,18 @@
 			#size-cells = <0>;
 		};
 
+		adc: adc@5a0000 {
+			compatible = "zhihe,a210-adc";
+			reg = <0 0x005a0000 0 0x1000>;
+			clocks = <&clk_peri PERI3_ADC_PCLK_EN>;
+			resets = <&rst_peri3 PERI3_ADC_PRST>;
+			interrupt-parent = <&intc>;
+			interrupts = <260 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&power_top>;
+			#io-channel-cells = <1>;
+			status = "disabled";
+		};
+
 		emmc: mmc@500000 {
 			compatible = "zhihe,a210-dwcmshc";
 			reg = <0x0 0x00500000 0x0 0x10000>;
