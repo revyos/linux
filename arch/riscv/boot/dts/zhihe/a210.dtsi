@@ -930,6 +930,29 @@
 			riscv,ndev = <351>;
 		};
 
+		pvt: pvt@3084c000 {
+			compatible = "moortec,mr75203";
+			reg = <0x00 0x3084c000 0x0 0x80>,
+			      <0x00 0x3084c080 0x0 0x180>,
+			      <0x00 0x3084c200 0x0 0x200>,
+			      <0x00 0x3084c400 0x0 0x200>;
+			reg-names = "common", "ts", "pd", "vm";
+			clocks = <&aon_110m>;
+			#thermal-sensor-cells = <1>;
+			moortec,ts-coeff-h = <220000>;
+			moortec,ts-coeff-cal5 = <4094>;
+		};
+
+		watchdog0: watchdog@305000 {
+			compatible = "snps,dw-wdt";
+			reg = <0x00 0x00305000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <331 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_WDT0_PCLK_EN>;
+			clock-names = "tclk";
+			resets = <&rst_peri0 PERI0_WDT0_PRST>;
+		};
+
 		peri2_ctrl: syscon@8400000 {
 			compatible = "zhihe,a210-peri2-ctrl", "syscon";
 			reg = <0 0x08400000 0 0x8>;
@@ -1853,6 +1876,94 @@
 				interrupt-parent = <&intc>;
 				interrupts = <52 IRQ_TYPE_LEVEL_HIGH>;
 			};
+		};
+
+		timer0: timer@303000 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00303000 0x0 0x14>;
+			interrupt-parent = <&intc>;
+			interrupts = <313 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_TIMER0_CCLK_EN>,
+				 <&clk_peri PERI0_TIMER0_PCLK_EN>;
+			clock-names = "timer", "pclk";
+			resets = <&rst_peri0 PERI0_TIMER0_RST>;
+		};
+
+		timer1: timer@303014 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00303014 0x0 0x14>;
+			interrupt-parent = <&intc>;
+			interrupts = <314 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_TIMER0_CCLK_EN>,
+				 <&clk_peri PERI0_TIMER0_PCLK_EN>;
+			clock-names = "timer", "pclk";
+			resets = <&rst_peri0 PERI0_TIMER0_RST>;
+		};
+
+		timer2: timer@303028 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00303028 0x0 0x14>;
+			interrupt-parent = <&intc>;
+			interrupts = <315 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_TIMER0_CCLK_EN>,
+				 <&clk_peri PERI0_TIMER0_PCLK_EN>;
+			clock-names = "timer", "pclk";
+			resets = <&rst_peri0 PERI0_TIMER0_RST>;
+		};
+
+		timer3: timer@30303c {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x0030303c 0x0 0x14>;
+			interrupt-parent = <&intc>;
+			interrupts = <316 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_TIMER0_CCLK_EN>,
+				 <&clk_peri PERI0_TIMER0_PCLK_EN>;
+			clock-names = "timer", "pclk";
+			resets = <&rst_peri0 PERI0_TIMER0_RST>;
+		};
+
+		timer4: timer@304000 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00304000 0x0 0x14>;
+			interrupt-parent = <&intc>;
+			interrupts = <317 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_TIMER1_CCLK_EN>,
+				 <&clk_peri PERI0_TIMER1_PCLK_EN>;
+			clock-names = "timer", "pclk";
+			resets = <&rst_peri0 PERI0_TIMER1_RST>;
+		};
+
+		timer5: timer@304014 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00304014 0x0 0x14>;
+			interrupt-parent = <&intc>;
+			interrupts = <318 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_TIMER1_CCLK_EN>,
+				 <&clk_peri PERI0_TIMER1_PCLK_EN>;
+			clock-names = "timer", "pclk";
+			resets = <&rst_peri0 PERI0_TIMER1_RST>;
+		};
+
+		timer6: timer@304028 {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x00304028 0x0 0x14>;
+			interrupt-parent = <&intc>;
+			interrupts = <319 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_TIMER1_CCLK_EN>,
+				 <&clk_peri PERI0_TIMER1_PCLK_EN>;
+			clock-names = "timer", "pclk";
+			resets = <&rst_peri0 PERI0_TIMER1_RST>;
+		};
+
+		timer7: timer@30403c {
+			compatible = "snps,dw-apb-timer";
+			reg = <0x00 0x0030403c 0x0 0x14>;
+			interrupt-parent = <&intc>;
+			interrupts = <320 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI0_TIMER1_CCLK_EN>,
+				 <&clk_peri PERI0_TIMER1_PCLK_EN>;
+			clock-names = "timer", "pclk";
+			resets = <&rst_peri0 PERI0_TIMER1_RST>;
 		};
 
 		i2c0: i2c@2020000 {
