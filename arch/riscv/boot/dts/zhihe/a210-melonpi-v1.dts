@@ -19,6 +19,149 @@
 		regulator-boot-on;
 		regulator-always-on;
 	};
+
+	/* SIT91211 supplies the 100 MHz PCIe reference. */
+	pcie_osc: pcie-oscillator {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
+	pcie_ref: pcie-reference-clock {
+		compatible = "gpio-gate-clock";
+		#clock-cells = <0>;
+		clocks = <&pcie_osc>;
+		enable-gpios = <&aw9535_1 13 GPIO_ACTIVE_HIGH>;
+	};
+
+	reg_pcie_3v3: regulator-pcie-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "pcie-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		vin-supply = <&vdd_3v3>;
+		gpio = <&aw9535_1 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+	};
+
+	reg_pcie_12v: regulator-pcie-12v {
+		compatible = "regulator-fixed";
+		regulator-name = "pcie-12v";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		gpio = <&aw9535_1 7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+	};
+
+	reg_pcie_aux: regulator-pcie-aux {
+		/* WAKE# shares CHIP_ID1; keep AUX off without a wake consumer. */
+		compatible = "regulator-fixed";
+		regulator-name = "pcie-3v3-aux";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&aw9535_1 10 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&aw9535_0 {
+	/* Keep the V1 clock control asserted across supply cycles. */
+	sit91211-ssc-enable-hog {
+		gpio-hog;
+		gpios = <12 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "sit91211-ssc-enable";
+	};
+
+	/* U35 routes the shared pins to PCIe, leaving I2S0 disconnected. */
+	pcie-sideband-select-hog {
+		gpio-hog;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "pcie-sideband-select";
+	};
+};
+
+&gpio0 {
+	/* The x4 link needs PHY1's clock without the x1 controller. */
+	pcie-ref1-request-hog {
+		gpio-hog;
+		gpios = <25 GPIO_ACTIVE_LOW>;
+		output-high;
+		line-name = "pcie-ref1-request";
+	};
+
+	/* The dedicated WAKE function is an output for endpoint mode. */
+	pcie-wake-hog {
+		gpio-hog;
+		gpios = <31 GPIO_ACTIVE_LOW>;
+		input;
+		line-name = "pcie-wake-input";
+	};
+};
+
+&peri1_padctrl {
+	pcie_sideband_pins: pcie-sideband-0 {
+		clkreq-pins {
+			pins = "GPIO0_29";
+			function = "pcie_x4";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+
+		wake-pins {
+			pins = "GPIO0_31";
+			function = "gpio0";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+
+		/* BTN_RSTN reaches only TP41 through U35. */
+		button-reset-pins {
+			pins = "GPIO0_28";
+			function = "pcie_x4";
+			bias-pull-up;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+
+	/* The host driver selects GPIO mode when it acquires PERST#. */
+	pcie_reset_pins: pcie-reset-0 {
+		gpio-pins {
+			pins = "GPIO0_30";
+			bias-disable;
+			drive-strength = <7>;
+			input-disable;
+		};
+	};
+};
+
+&e16phy {
+	clocks = <&clk_pcie E16PHY_PCLK_EN>, <&pcie_ref>;
+	clock-names = "apb", "ref";
+	data-lanes = <1 1 1 1>;
+	status = "okay";
+};
+
+&pcie0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie_reset_pins &pcie_sideband_pins>;
+	num-lanes = <4>;
+	reset-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;
+	vpcie3v3-supply = <&reg_pcie_3v3>;
+	vpcie12v-supply = <&reg_pcie_12v>;
+	status = "okay";
 };
 
 &uart5 {

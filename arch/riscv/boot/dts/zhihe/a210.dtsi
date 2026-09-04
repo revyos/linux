@@ -568,6 +568,14 @@
 				zhihe,ccu-dly-time = <0x5E 0x5E>;
 				zhihe,ccu-dly-time-step = <0x3 0x3>;
 			};
+			pcie_ccu: clock-controller@a007400 {
+				compatible = "zhihe,a210-ccu";
+				reg = <0x00 0x0A007400 0x0 0x2C>,
+				      <0x00 0x0A008000 0x0 0x2C>,
+				      <0x00 0x0A008400 0x0 0x2C>;
+				zhihe,ccu-dly-time = <0x5E 0x5E 0x5E>;
+				zhihe,ccu-dly-time-step = <0x3 0x3 0x3>;
+			};
 			tee_ccu: clock-controller@27430000 {
 				compatible = "zhihe,a210-ccu";
 				reg = <0x00 0x27430000 0x0 0x2C>;
@@ -608,6 +616,24 @@
 				zhihe,ccu-dly-time-step = <0x2>;
 				zhihe,ccu-ratio = <63>;
 			};
+		};
+
+		power_pcie0: power-domain-pcie0 {
+			compatible = "zhihe,a210-pd-pcie0";
+			reg = <0 0x0a006200 0 0x200>,
+			      <0 0x0a006000 0 0x200>;
+			reg-names = "bpc", "pcu";
+			power-domains = <&power_top>;
+			#power-domain-cells = <0>;
+		};
+
+		power_pcie1: power-domain-pcie1 {
+			compatible = "zhihe,a210-pd-pcie1";
+			reg = <0 0x0a006600 0 0x200>,
+			      <0 0x0a006400 0 0x200>;
+			reg-names = "bpc", "pcu";
+			power-domains = <&power_top>;
+			#power-domain-cells = <0>;
 		};
 
 		power_dmac: power-domain-dmac {
@@ -718,6 +744,12 @@
 		rst_peri3: reset-controller@540400 {
 			compatible = "zhihe,a210-peri3-reset";
 			reg = <0x00 0x00540400 0x0 0x200>;
+			#reset-cells = <1>;
+		};
+
+		rst_pcie: reset-controller@a000100 {
+			compatible = "zhihe,a210-pcie-reset";
+			reg = <0x00 0x0a000100 0x0 0x100>;
 			#reset-cells = <1>;
 		};
 
@@ -990,6 +1022,102 @@
 			clocks = <&aon_110m>, <&osc_24m>, <&aon_rc>, <&osc_32k>;
 			clock-names = "high", "osc", "rc", "rtc";
 			#clock-cells = <1>;
+		};
+
+		clk_pcie: clock-controller@a000000 {
+			compatible = "zhihe,a210-pcie-clk";
+			reg = <0 0x0a000000 0 0x28>;
+			reg-names = "pcie-clk-en";
+			#clock-cells = <1>;
+		};
+
+		e16phy: phy@a180000 {
+			compatible = "zhihe,a210-e16-phy";
+			reg = <0 0x0a180000 0 0x1000>,
+			      <0 0x0a100000 0 0x40000>,
+			      <0 0x0a140000 0 0x40000>;
+			reg-names = "sysreg", "phy0", "phy1";
+			resets = <&rst_pcie PCIE_E16PHY_APBS_PRST>,
+				 <&rst_pcie PCIE_E16PHY_PHY_RST>;
+			reset-names = "apb", "phy";
+			#phy-cells = <0>;
+			status = "disabled";
+		};
+
+		pcie0: pcie@b000000 {
+			compatible = "zhihe,a210-pcie";
+			reg = <0 0x0b000000 0 0x800000>,
+			      <0x18 0 0 0x200000>, <0 0x0a004000 0 0x1000>;
+			reg-names = "dbi", "config", "app";
+			device_type = "pci";
+			#address-cells = <3>;
+			#size-cells = <2>;
+			#interrupt-cells = <1>;
+			bus-range = <0 255>;
+			ranges = <0x01000000 0 0 0x18 0x200000 0 0x10000>,
+				 <0x02000000 0 0x40100000 0 0x40100000 0 0x800000>,
+				 <0x43000000 0x18 0x300000 0x18 0x300000
+				  0 0x800000>;
+			interrupt-parent = <&intc>;
+			interrupts = <139 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "msi";
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &intc 140 IRQ_TYPE_LEVEL_HIGH>,
+					<0 0 0 2 &intc 141 IRQ_TYPE_LEVEL_HIGH>,
+					<0 0 0 3 &intc 142 IRQ_TYPE_LEVEL_HIGH>,
+					<0 0 0 4 &intc 143 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_pcie PCIE_DM_GEN3X4_AUX_CLK_EN>,
+				 <&clk_pcie PCIE_DM_GEN3X4_SLV_ACLK_EN>,
+				 <&clk_pcie PCIE_DM_GEN3X4_MST_ACLK_EN>,
+				 <&clk_pcie PCIE_DM_GEN3X4_PCLK_EN>;
+			clock-names = "aux", "slv", "mstr", "dbi";
+			resets = <&rst_pcie PCIE_DM_GEN3X4_APBS_PRST>,
+				 <&rst_pcie PCIE_DM_GEN3X4_POWER_UP_RST>;
+			reset-names = "dbi", "pwr";
+			power-domains = <&power_pcie0>;
+			phys = <&e16phy>;
+			phy-names = "pcie";
+			num-lanes = <4>;
+			max-link-speed = <3>;
+			status = "disabled";
+		};
+
+		pcie1: pcie@b800000 {
+			compatible = "zhihe,a210-pcie";
+			reg = <0 0x0b800000 0 0x800000>,
+			      <0x1e 0 0 0x20000>, <0 0x0a005000 0 0x1000>;
+			reg-names = "dbi", "config", "app";
+			device_type = "pci";
+			#address-cells = <3>;
+			#size-cells = <2>;
+			#interrupt-cells = <1>;
+			bus-range = <0 255>;
+			ranges = <0x01000000 0 0 0x1e 0x200000 0 0x10000>,
+				 <0x02000000 0 0x50100000 0 0x50100000 0 0x800000>,
+				 <0x43000000 0x1e 0x300000 0x1e 0x300000
+				  0 0x800000>;
+			interrupt-parent = <&intc>;
+			interrupts = <158 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "msi";
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &intc 159 IRQ_TYPE_LEVEL_HIGH>,
+					<0 0 0 2 &intc 160 IRQ_TYPE_LEVEL_HIGH>,
+					<0 0 0 3 &intc 161 IRQ_TYPE_LEVEL_HIGH>,
+					<0 0 0 4 &intc 162 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_pcie PCIE_RP_GEN3X1_AUX_CLK_EN>,
+				 <&clk_pcie PCIE_RP_GEN3X1_SLV_ACLK_EN>,
+				 <&clk_pcie PCIE_RP_GEN3X1_MST_ACLK_EN>,
+				 <&clk_pcie PCIE_RP_GEN3X1_PCLK_EN>;
+			clock-names = "aux", "slv", "mstr", "dbi";
+			resets = <&rst_pcie PCIE_RP_GEN3X1_APBS_PRST>,
+				 <&rst_pcie PCIE_RP_GEN3X1_POWER_UP_RST>;
+			reset-names = "dbi", "pwr";
+			power-domains = <&power_pcie1>;
+			phys = <&e16phy>;
+			phy-names = "pcie";
+			num-lanes = <1>;
+			max-link-speed = <3>;
+			status = "disabled";
 		};
 
 		gmac0_sys: syscon@210f000 {

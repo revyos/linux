@@ -22,10 +22,123 @@
 		regulator-boot-on;
 		regulator-always-on;
 	};
+
+	pcie_osc: pcie-oscillator {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
+	pcie_clock_power: pcie-clock-power {
+		compatible = "gpio-gate-clock";
+		#clock-cells = <0>;
+		clocks = <&pcie_osc>;
+		enable-gpios = <&aw9535_1 13 GPIO_ACTIVE_HIGH>;
+	};
+
+	pcie_ref: pcie-reference-clock {
+		compatible = "gpio-gate-clock";
+		#clock-cells = <0>;
+		clocks = <&pcie_clock_power>;
+		enable-gpios = <&aw9535_0 12 GPIO_ACTIVE_HIGH>;
+	};
+
+	reg_pcie_eth: regulator-pcie-ethernet {
+		compatible = "regulator-fixed";
+		vin-supply = <&vdd_3v3>;
+		regulator-name = "pcie-ethernet-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&aw9535_1 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+	};
+
+	reg_minipcie_3v3: regulator-minipcie-3v3 {
+		compatible = "regulator-fixed";
+		vin-supply = <&vdd_3v3>;
+		regulator-name = "minipcie-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&aw9535_0 7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+	};
+
+	reg_minipcie_1v5: regulator-minipcie-1v5 {
+		compatible = "regulator-fixed";
+		vin-supply = <&vdd_3v3>;
+		regulator-name = "minipcie-1v5";
+		regulator-min-microvolt = <1500000>;
+		regulator-max-microvolt = <1500000>;
+		gpio = <&aw9535_0 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
+	};
+};
+
+&e16phy {
+	clocks = <&clk_pcie E16PHY_PCLK_EN>, <&pcie_ref>;
+	clock-names = "apb", "ref";
+	data-lanes = <1 2 3 4>;
+	status = "okay";
+};
+
+&pcie0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie0_clkreq_pins>;
+	num-lanes = <1>;
+	reset-gpios = <&aw9535_1 0 GPIO_ACTIVE_LOW>;
+	vpcie3v3-supply = <&reg_pcie_eth>;
+	status = "okay";
+};
+
+&pcie1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie1_clkreq_pins>;
+	reset-gpios = <&aw9535_0 15 GPIO_ACTIVE_LOW>;
+	vpcie3v3-supply = <&reg_minipcie_3v3>;
+	vpcie1v5-supply = <&reg_minipcie_1v5>;
+	status = "okay";
+};
+
+&aw9535_0 {
+	minipcie-wireless-enable-hog {
+		gpio-hog;
+		gpios = <8 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "minipcie-wireless-enable";
+	};
 };
 
 &uart5 {
 	uart-has-rtscts;
+};
+
+&peri1_padctrl {
+	pcie0_clkreq_pins: pcie0-clkreq-0 {
+		clkreq-pins {
+			pins = "GPIO0_29";
+			function = "pcie_x4";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+
+	pcie1_clkreq_pins: pcie1-clkreq-0 {
+		clkreq-pins {
+			pins = "GPIO0_25";
+			function = "pcie_x1";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 };
 
 &peri1_padctrl {
