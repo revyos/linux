@@ -603,6 +603,18 @@
 				zhihe,ccu-ratio = <63>;
 			};
 		};
+
+		power_emmc: power-domain-emmc {
+			compatible = "zhihe,a210-pd-emmc";
+			power-domains = <&power_top>;
+			#power-domain-cells = <0>;
+			clocks = <&clk_peri AXI_PERI3_MST_ACLK_EN>,
+				 <&clk_peri AXI_PERI3_MST_PCLK_EN>,
+				 <&clk_peri PERI3_EMMC_ACLK_EN>,
+				<&clk_peri PERI3_EMMC_X2X_ACLK_S_EN>,
+				<&clk_peri PERI3_EMMC_X2X_ACLK_M_EN>,
+				<&clk_peri PERI3_EMMC_OSC_CLK_EN>;
+		};
 	};
 
 	soc {
@@ -838,6 +850,17 @@
 			resets = <&rst_peri2 PERI2_UART9_PRST>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
+		};
+
+		emmc: mmc@500000 {
+			compatible = "zhihe,a210-dwcmshc";
+			reg = <0x0 0x00500000 0x0 0x10000>;
+			interrupt-parent = <&intc>;
+			interrupts = <265 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_peri PERI3_EMMC_SDIO_REF_CLK_CG_EN>,
+					 <&clk_peri PERI3_EMMC_HCLK_EN>;
+			clock-names = "core", "bus";
+			power-domains = <&power_emmc>;
 		};
 
 		clk_aon: clock-controller@30844000 {

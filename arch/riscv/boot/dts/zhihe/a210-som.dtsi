@@ -6,6 +6,7 @@
 	compatible = "zhihe,a210-som", "zhihe,a210";
 
 	aliases {
+		mmc0 = &emmc;
 	};
 
 	/* Boot firmware replaces this placeholder after DDR training. */
@@ -25,6 +26,18 @@
 			no-map;
 		};
 	};
+};
+
+&emmc {
+	max-frequency = <196608000>;
+	non-removable;
+	mmc-hs400-enhanced-strobe;
+	mmc-hs400-1_8v;
+	mmc-hs200-1_8v;
+	no-sdio;
+	no-sd;
+	bus-width = <8>;
+	cap-mmc-highspeed;
 };
 
 &cluster0_opp {
