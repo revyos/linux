@@ -381,6 +381,11 @@
 	status = "disabled";
 };
 
+
+&gpu {
+	status = "okay";
+};
+
 &dc8200 {
 	status = "okay";
 };

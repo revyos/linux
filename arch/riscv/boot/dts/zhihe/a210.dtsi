@@ -617,6 +617,17 @@
 				zhihe,ccu-ratio = <63>;
 			};
 		};
+		power_gpu: power-domain-gpu {
+			compatible = "zhihe,a210-pd-gpu";
+			reg = <0 0x06e00600 0 0x200>,
+			      <0 0x06e00400 0 0x200>,
+			      <0 0x06e00000 0 0x200>,
+			      <0 0x26d12000 0 0x1000>;
+			reg-names = "pca", "bpc", "pcu", "iopmp";
+			power-domains = <&power_top>;
+			clocks = <&clk TOP_GPU_CORE_CLK_DIV>;
+			#power-domain-cells = <0>;
+		};
 
 		power_pcie0: power-domain-pcie0 {
 			compatible = "zhihe,a210-pd-pcie0";
@@ -879,6 +890,12 @@
 		rst_tee: reset-controller@27420400 {
 			compatible = "zhihe,a210-tee-reset";
 			reg = <0x00 0x27420400 0x0 0x200>;
+			#reset-cells = <1>;
+		};
+
+		rst_gpu: reset-controller@6d02000 {
+			compatible = "zhihe,a210-gpu-reset";
+			reg = <0x00 0x06d02000 0x0 0x200>;
 			#reset-cells = <1>;
 		};
 
@@ -1394,6 +1411,30 @@
 			phy-names = "pcie";
 			num-lanes = <1>;
 			max-link-speed = <3>;
+			status = "disabled";
+		};
+
+		clk_gpu: clock-controller@6d02200 {
+			compatible = "zhihe,a210-gpu-clk";
+			reg = <0 0x06d02200 0 0x200>,
+			      <0 0x06e06200 0 0x200>;
+			reg-names = "gpu-ss-pwrap-clk-en", "gpu-ss-top-clk-en";
+			power-domains = <&power_gpu>;
+			#clock-cells = <1>;
+		};
+
+		gpu: gpu@6c00000 {
+			compatible = "zhihe,a210-gpu", "img,img-bxm-4-64",
+				     "img,img-rogue";
+			reg = <0 0x06c00000 0 0x100000>;
+			interrupt-parent = <&intc>;
+			interrupts = <72 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_gpu SW_PWR_WRAP_GPU_CORE_CLK_EN>,
+				 <&clk_gpu SW_PWR_WRAP_DFMU_CORE_CLK_EN>,
+				 <&clk_gpu SW_PWR_WRAP_GPU_SYS_CLK_EN>;
+			clock-names = "core", "mem", "sys";
+			resets = <&rst_gpu GPU_PWR_WRAP_RGX_HOOD_RST>;
+			power-domains = <&power_gpu>;
 			status = "disabled";
 		};
 
