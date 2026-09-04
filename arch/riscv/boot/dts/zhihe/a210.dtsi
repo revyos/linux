@@ -747,6 +747,18 @@
 			#power-domain-cells = <0>;
 		};
 
+		power_pwm: power-domain-pwm {
+			compatible = "zhihe,a210-pd-pwm";
+			power-domains = <&power_top>;
+			resets = <&rst_peri1 PERI1_PWM0_CRST>,
+				 <&rst_peri1 PERI1_PWM0_PRST>,
+				 <&rst_peri2 PERI2_PWM1_CRST>,
+				 <&rst_peri2 PERI2_PWM1_PRST>,
+				 <&rst_peri2 PERI2_PWM2_CRST>,
+				 <&rst_peri2 PERI2_PWM2_PRST>;
+			#power-domain-cells = <0>;
+		};
+
 		power_dmac: power-domain-dmac {
 			compatible = "zhihe,a210-pd-dmac";
 			power-domains = <&power_top>;
@@ -1165,6 +1177,33 @@
 			num-cs = <2>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+		};
+
+		pwm0: pwm@202a000 {
+			compatible = "zhihe,a210-pwm", "thead,th1520-pwm";
+			reg = <0 0x0202a000 0 0x1000>;
+			clocks = <&clk_peri PERI1_PWM0_CCLK_EN>;
+			power-domains = <&power_pwm>;
+			#pwm-cells = <3>;
+			status = "disabled";
+		};
+
+		pwm1: pwm@841a000 {
+			compatible = "zhihe,a210-pwm", "thead,th1520-pwm";
+			reg = <0 0x0841a000 0 0x1000>;
+			clocks = <&clk_peri PERI2_PWM1_CCLK_EN>;
+			power-domains = <&power_pwm>;
+			#pwm-cells = <3>;
+			status = "disabled";
+		};
+
+		pwm2: pwm@841b000 {
+			compatible = "zhihe,a210-pwm", "thead,th1520-pwm";
+			reg = <0 0x0841b000 0 0x1000>;
+			clocks = <&clk_peri PERI2_PWM2_CCLK_EN>;
+			power-domains = <&power_pwm>;
+			#pwm-cells = <3>;
+			status = "disabled";
 		};
 
 		adc: adc@5a0000 {
