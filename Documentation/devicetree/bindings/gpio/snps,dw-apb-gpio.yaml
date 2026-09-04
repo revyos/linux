@@ -20,7 +20,11 @@ properties:
     pattern: "^gpio@[0-9a-f]+$"
 
   compatible:
-    const: snps,dw-apb-gpio
+    oneOf:
+      - const: snps,dw-apb-gpio
+      - items:
+          - const: zhihe,a210-gpio
+          - const: snps,dw-apb-gpio
 
   "#address-cells":
     const: 1
@@ -44,6 +48,9 @@ properties:
       - const: db
 
   resets:
+    maxItems: 1
+
+  power-domains:
     maxItems: 1
 
 patternProperties:
