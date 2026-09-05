@@ -2,6 +2,7 @@
 config ZHIHE_A210_AON
 	tristate "ZhiHe A210 AON protocol driver"
 	depends on ZHIHE_A210_MBOX
+	select AUXILIARY_BUS
 	help
 	  ZhiHe AON is a low-level system function which runs a dedicated
 	  ZhiHe RISC-V E902 core to provide power, clock and resource management.

@@ -14,7 +14,8 @@ This document describes the AON bring-up sequence and the RPC wire
 format as implemented by the ``zhihe_a210_aon`` driver
 (``drivers/firmware/zhihe/a210_aon.c``) and its consumers, currently
 the AON regulator driver
-(``drivers/regulator/zhihe-a210-aon-regulator.c``).
+(``drivers/regulator/zhihe-a210-aon-regulator.c``) and the shared TH1520/A210
+reboot driver (``drivers/power/reset/th1520-aon-reboot.c``).
 
 System overview
 ===============
@@ -139,7 +140,7 @@ Service ID   Name
 0x3F         MAX
 ===========  =========================================================
 
-Only the PM service is used by the kernel today. Its function IDs are:
+The PM service function IDs are:
 
 ===========  =========================================================
 Function ID  Name
@@ -283,6 +284,40 @@ Offset  Size    Field
 7       2       status: 1 = on, 0 = off
 9       19      reserved
 ======  ======  ================================================
+
+WDG system restart and power-off
+================================
+
+A210 uses the same WDG commands as TH1520 for system restart and power-off.
+The command IDs and reply policy below follow the vendor kernel's
+``drivers/watchdog/zhihe_wdt.c``. Requests use service 5, the common header
+and a zero-filled 24-byte payload:
+
+===========  ===========  =============================
+Function ID  Operation    RPC reply requested by A210
+===========  ===========  =============================
+5            RESTART      No
+7            POWER_OFF    Yes
+===========  ===========  =============================
+
+The AON driver creates an ``a210_aon.reboot`` auxiliary device only after
+firmware startup succeeds. The shared reboot driver uses a parent-provided
+RPC callback, retaining the existing channel and its transaction mutex.
+No extra DT node or second mailbox client is needed. Enable
+``CONFIG_POWER_RESET_TH1520_AON`` along with ``CONFIG_ZHIHE_A210_AON``.
+
+Requests are sent from ``SYS_OFF_MODE_RESTART_PREPARE`` and
+``SYS_OFF_MODE_POWER_OFF_PREPARE``. These sleepable callbacks run after
+device shutdown but before syscore shutdown, while mailbox interrupts can
+still complete the transaction. A no-reply RPC still waits for the INFO7
+transport acknowledgment; it is not an atomic send operation.
+
+On successful RPC return, the shared driver allows one second for the
+asynchronous operation to take effect before falling through to other
+providers. This is a software fallback timeout, not a hardware timing
+requirement. The final power-off callback advertises power-off capability
+and reports failure only; it does not send another RPC. This path does not
+implement emergency restart, watchdog management, or power-on wake sources.
 
 Transaction flow
 ================

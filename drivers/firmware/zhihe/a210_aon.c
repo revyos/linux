@@ -3,11 +3,14 @@
  * Copyright (C) 2025 Zhihe Computing Limited.
  */
 
+#include <linux/auxiliary_bus.h>
 #include <linux/delay.h>
 #include <linux/debugfs.h>
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/firmware.h>
+#include <linux/firmware/thead/thead,aon-reboot.h>
+#include <linux/firmware/thead/thead,th1520-aon.h>
 #include <linux/firmware/zhihe/a210-ipc.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
@@ -51,6 +54,7 @@ struct zhihe_a210_aon_ipc {
 	struct mutex log_lock; /* Serializes firmware log readers. */
 	u32 *msg;
 	size_t msg_size;
+	struct thead_aon_reboot_data reboot;
 };
 
 struct zhihe_a210_aon_log {
@@ -395,6 +399,36 @@ static int a210_aon_debugfs_init(struct device *dev, struct zhihe_a210_aon_ipc *
 	return 0;
 }
 
+static int a210_aon_reboot_rpc(void *context, void *msg)
+{
+	struct th1520_aon_rpc_msg_hdr *hdr = msg;
+	struct zhihe_a210_aon_rpc_ack_common ack = {};
+	bool have_resp = hdr->func != TH1520_AON_WDG_FUNC_RESTART;
+
+	/*
+	 * A210 shares the TH1520 WDG wire format. Match the vendor firmware
+	 * policy: restart requests no RPC reply; power-off requests a reply.
+	 * Both still wait for the mailbox transport acknowledgment, so this
+	 * adapter must only run in the sleepable sys-off preparation phase.
+	 */
+	return zhihe_a210_aon_call_rpc(context, msg, &ack, sizeof(ack),
+				     have_resp);
+}
+
+static int a210_aon_reboot_init(struct zhihe_a210_aon_ipc *aon_ipc)
+{
+	struct auxiliary_device *adev;
+
+	aon_ipc->reboot.call_rpc = a210_aon_reboot_rpc;
+	aon_ipc->reboot.context = aon_ipc;
+	adev = devm_auxiliary_device_create(aon_ipc->dev, "reboot",
+					    &aon_ipc->reboot);
+	if (!adev)
+		return -ENOMEM;
+
+	return 0;
+}
+
 static int zhihe_a210_aon_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -444,6 +478,10 @@ static int zhihe_a210_aon_probe(struct platform_device *pdev)
 	ret = a210_aon_debugfs_init(dev, aon_ipc);
 	if (ret)
 		return ret;
+
+	ret = a210_aon_reboot_init(aon_ipc);
+	if (ret)
+		return dev_err_probe(dev, ret, "failed to create reboot device\n");
 
 	return devm_of_platform_populate(dev);
 }
