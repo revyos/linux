@@ -7,6 +7,7 @@
 
 #include <linux/auxiliary_bus.h>
 #include <linux/delay.h>
+#include <linux/firmware/thead/thead,aon-reboot.h>
 #include <linux/firmware/thead/thead,th1520-aon.h>
 #include <linux/module.h>
 #include <linux/notifier.h>
@@ -25,7 +26,7 @@ struct th1520_aon_msg_empty_body {
 
 static int th1520_aon_reboot_request(struct sys_off_data *data, u8 func)
 {
-	struct th1520_aon_chan *aon_chan = data->cb_data;
+	struct thead_aon_reboot_data *transport = data->cb_data;
 	struct th1520_aon_msg_empty_body msg = {};
 	int ret;
 
@@ -33,7 +34,7 @@ static int th1520_aon_reboot_request(struct sys_off_data *data, u8 func)
 	msg.hdr.func = func;
 	msg.hdr.size = TH1520_AON_RPC_MSG_NUM;
 
-	ret = th1520_aon_call_rpc(aon_chan, &msg);
+	ret = transport->call_rpc(transport->context, &msg);
 	if (ret)
 		dev_err(data->dev, "AON WDG command %u failed: %d\n", func, ret);
 	else
@@ -62,7 +63,11 @@ static int th1520_aon_reboot_probe(struct auxiliary_device *adev,
 				  const struct auxiliary_device_id *id)
 {
 	struct device *dev = &adev->dev;
+	struct thead_aon_reboot_data *transport = dev_get_platdata(dev);
 	int ret;
+
+	if (!transport || !transport->call_rpc)
+		return -EINVAL;
 
 	/*
 	 * RPC takes a mutex and waits for mailbox interrupts. Send after device
@@ -94,7 +99,7 @@ static int th1520_aon_reboot_probe(struct auxiliary_device *adev,
 	 */
 	return devm_register_sys_off_handler(dev, SYS_OFF_MODE_POWER_OFF,
 					     TH1520_AON_REBOOT_PRIORITY,
-					     th1520_aon_pwroff_failed, dev_get_platdata(dev));
+					     th1520_aon_pwroff_failed, transport);
 }
 
 static const struct auxiliary_device_id th1520_aon_reboot_id_table[] = {

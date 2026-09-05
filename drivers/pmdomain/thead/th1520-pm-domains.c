@@ -6,6 +6,7 @@
  */
 
 #include <linux/auxiliary_bus.h>
+#include <linux/firmware/thead/thead,aon-reboot.h>
 #include <linux/firmware/thead/thead,th1520-aon.h>
 #include <linux/slab.h>
 #include <linux/platform_device.h>
@@ -173,12 +174,24 @@ static int th1520_pd_pwrseq_gpu_init(struct device *dev)
 					adev);
 }
 
+static int th1520_pd_reboot_rpc(void *context, void *msg)
+{
+	return th1520_aon_call_rpc(context, msg);
+}
+
 static int th1520_pd_reboot_init(struct device *dev,
 				 struct th1520_aon_chan *aon_chan)
 {
 	struct auxiliary_device *adev;
+	struct thead_aon_reboot_data *data;
 
-	adev = devm_auxiliary_device_create(dev, "reboot", aon_chan);
+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+	data->call_rpc = th1520_pd_reboot_rpc;
+	data->context = aon_chan;
+	adev = devm_auxiliary_device_create(dev, "reboot", data);
 	if (!adev)
 		return -ENODEV;
 
