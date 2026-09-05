@@ -15,6 +15,7 @@
 #include <asm/cpufeature.h>
 #include <asm/dma-noncoherent.h>
 #include <asm/errata_list.h>
+#include <asm/hwcap.h>
 #include <asm/hwprobe.h>
 #include <asm/io.h>
 #include <asm/text-patching.h>
@@ -23,6 +24,11 @@
 
 #define CSR_TH_SXSTATUS		0x5c0
 #define SXSTATUS_MAEE		_AC(0x200000, UL)
+
+#ifdef CONFIG_64BIT
+#define THEAD_MARCHID_C908	_AC(0x8000000009140d00, UL)
+#define THEAD_MARCHID_C920	_AC(0x80000000090c0d00, UL)
+#endif
 
 static bool errata_probe_mae(unsigned int stage,
 			     unsigned long arch_id, unsigned long impid)
@@ -106,16 +112,44 @@ static const struct riscv_nonstd_cache_ops thead_errata_cmo_ops = {
 	.wback_inv = &thead_errata_cache_wback_inv,
 };
 
+static bool errata_cmo_matches_ids(unsigned long arch_id,
+				   unsigned long impid)
+{
+	if (!arch_id && !impid)
+		return true;
+
+#ifdef CONFIG_64BIT
+	return arch_id == THEAD_MARCHID_C908 || arch_id == THEAD_MARCHID_C920;
+#else
+	return false;
+#endif
+}
+
 static bool errata_probe_cmo(unsigned int stage,
 			     unsigned long arch_id, unsigned long impid)
 {
 	if (!IS_ENABLED(CONFIG_ERRATA_THEAD_CMO))
 		return false;
 
-	if (arch_id != 0 || impid != 0)
+	/*
+	 * Legacy C9xx cores report zero IDs. Newer C908 and C920 revisions
+	 * report architectural IDs but retain the same non-standard cache
+	 * management operations.
+	 */
+	if (!errata_cmo_matches_ids(arch_id, impid))
 		return false;
 
 	if (stage == RISCV_ALTERNATIVES_EARLY_BOOT)
+		return false;
+
+	/*
+	 * Prefer standard cache operations on C908/C920 when Zicbom is usable
+	 * system-wide. Registering non-standard operations would override the
+	 * standard DMA path and replace the firmware-provided block size.
+	 * Keep the legacy zero-ID C9xx behavior unchanged.
+	 */
+	if (arch_id && IS_ENABLED(CONFIG_RISCV_ISA_ZICBOM) &&
+	    riscv_isa_extension_available(NULL, ZICBOM))
 		return false;
 
 	if (stage == RISCV_ALTERNATIVES_BOOT) {
