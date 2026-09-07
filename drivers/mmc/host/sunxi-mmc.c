@@ -245,6 +245,7 @@ struct sunxi_idma_des {
 struct sunxi_mmc_cfg {
 	u32 idma_des_size_bits;
 	u32 idma_des_shift;
+	u32 fifo_trigger_level;
 	const struct sunxi_mmc_clk_delay *clk_delays;
 
 	/* does the IP block support autocalibration? */
@@ -263,6 +264,13 @@ struct sunxi_mmc_cfg {
 
 	/* clock hardware can switch between old and new timing modes */
 	bool ccu_has_timings_switch;
+
+	/* TM1 divides the module clock by two even for SDR transfers. */
+	bool timing_mode1;
+	/* The segment limit is smaller than the descriptor length field. */
+	bool idma_des_size_explicit;
+	/* Explicit ownership transfers for cacheable DMA descriptors. */
+	bool needs_desc_sync;
 };
 
 struct sunxi_mmc_host {
@@ -332,7 +340,7 @@ static int sunxi_mmc_init_host(struct sunxi_mmc_host *host)
 	 *
 	 * TODO: sun9i has a larger FIFO and supports higher trigger values
 	 */
-	mmc_writel(host, REG_FTRGL, 0x20070008);
+	mmc_writel(host, REG_FTRGL, host->cfg->fifo_trigger_level ?: 0x20070008);
 	/* Maximum timeout value */
 	mmc_writel(host, REG_TMOUT, 0xffffffff);
 	/* Unmask SDIO interrupt if needed */
@@ -362,12 +370,17 @@ static void sunxi_mmc_init_idma_des(struct sunxi_mmc_host *host,
 	dma_addr_t next_desc = host->sg_dma;
 	int i, max_len = (1 << host->cfg->idma_des_size_bits);
 
+	if (host->cfg->needs_desc_sync)
+		dma_sync_single_for_cpu(host->dev, host->sg_dma, PAGE_SIZE,
+					DMA_BIDIRECTIONAL);
+
 	for (i = 0; i < data->sg_len; i++) {
 		pdes[i].config = cpu_to_le32(SDXC_IDMAC_DES0_CH |
 					     SDXC_IDMAC_DES0_OWN |
 					     SDXC_IDMAC_DES0_DIC);
 
-		if (data->sg[i].length == max_len)
+		if (!host->cfg->idma_des_size_explicit &&
+		    data->sg[i].length == max_len)
 			pdes[i].buf_size = 0; /* 0 == max_len */
 		else
 			pdes[i].buf_size = cpu_to_le32(data->sg[i].length);
@@ -386,6 +399,9 @@ static void sunxi_mmc_init_idma_des(struct sunxi_mmc_host *host,
 					  SDXC_IDMAC_DES0_ER);
 	pdes[i - 1].config &= cpu_to_le32(~SDXC_IDMAC_DES0_DIC);
 	pdes[i - 1].buf_addr_ptr2 = 0;
+	if (host->cfg->needs_desc_sync)
+		dma_sync_single_for_device(host->dev, host->sg_dma, PAGE_SIZE,
+					   DMA_BIDIRECTIONAL);
 
 	/*
 	 * Avoid the io-store starting the idmac hitting io-mem before the
@@ -783,6 +799,9 @@ static int sunxi_mmc_clk_set_rate(struct sunxi_mmc_host *host,
 	 * This block should be updated once support for other DDR
 	 * modes is added.
 	 */
+	if (host->cfg->timing_mode1)
+		clock <<= 1;
+
 	if (ios->timing == MMC_TIMING_MMC_DDR52 &&
 	    (host->use_new_timings ||
 	     ios->bus_width == MMC_BUS_WIDTH_8)) {
@@ -824,6 +843,8 @@ static int sunxi_mmc_clk_set_rate(struct sunxi_mmc_host *host,
 
 	/* update card clock rate to account for internal divider */
 	rate /= div;
+	if (host->cfg->timing_mode1)
+		rate /= 2;
 
 	/*
 	 * Configure the controller to use the new timing mode if needed.
@@ -836,6 +857,21 @@ static int sunxi_mmc_clk_set_rate(struct sunxi_mmc_host *host,
 		rval = mmc_readl(host, REG_SD_NTSR);
 		rval |= SDXC_2X_TIMING_MODE;
 		mmc_writel(host, REG_SD_NTSR, rval);
+	}
+
+	if (host->cfg->timing_mode1) {
+		/* TM1 phase changes must be made with the module clock gated. */
+		clk_disable_unprepare(host->clk_mmc);
+		rval = mmc_readl(host, REG_DRV_DL);
+		rval |= GENMASK(17, 16);
+		mmc_writel(host, REG_DRV_DL, rval);
+		rval = mmc_readl(host, REG_SD_NTSR) & ~GENMASK(5, 4);
+		if (rate <= 26000000)
+			rval |= BIT(4);
+		mmc_writel(host, REG_SD_NTSR, rval);
+		ret = clk_prepare_enable(host->clk_mmc);
+		if (ret)
+			return ret;
 	}
 
 	/* sunxi_mmc_clk_set_phase expects the actual card clock rate */
@@ -1175,6 +1211,18 @@ static const struct sunxi_mmc_cfg sun20i_d1_cfg = {
 	.needs_new_timings = true,
 };
 
+static const struct sunxi_mmc_cfg sun252i_v861_cfg = {
+	.idma_des_size_bits = 12,
+	.idma_des_shift = 2,
+	.idma_des_size_explicit = true,
+	.fifo_trigger_level = 0x200700f8,
+	.can_calibrate = true,
+	.mask_data0 = true,
+	.needs_new_timings = true,
+	.timing_mode1 = true,
+	.needs_desc_sync = true,
+};
+
 static const struct sunxi_mmc_cfg sun50i_a64_cfg = {
 	.idma_des_size_bits = 16,
 	.clk_delays = NULL,
@@ -1207,6 +1255,7 @@ static const struct sunxi_mmc_cfg sun50i_a100_emmc_cfg = {
 };
 
 static const struct of_device_id sunxi_mmc_of_match[] = {
+	{ .compatible = "allwinner,sun252i-v861-mmc", .data = &sun252i_v861_cfg },
 	{ .compatible = "allwinner,sun4i-a10-mmc", .data = &sun4i_a10_cfg },
 	{ .compatible = "allwinner,sun5i-a13-mmc", .data = &sun5i_a13_cfg },
 	{ .compatible = "allwinner,sun7i-a20-mmc", .data = &sun7i_a20_cfg },
@@ -1362,6 +1411,15 @@ error_disable_mmc:
 	return ret;
 }
 
+static void sunxi_mmc_free_descriptors(struct sunxi_mmc_host *host)
+{
+	if (host->cfg->needs_desc_sync)
+		dma_free_noncoherent(host->dev, PAGE_SIZE, host->sg_cpu,
+				     host->sg_dma, DMA_BIDIRECTIONAL);
+	else
+		dma_free_coherent(host->dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
+}
+
 static int sunxi_mmc_probe(struct platform_device *pdev)
 {
 	struct sunxi_mmc_host *host;
@@ -1383,8 +1441,13 @@ static int sunxi_mmc_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
-	host->sg_cpu = dma_alloc_coherent(&pdev->dev, PAGE_SIZE,
-					  &host->sg_dma, GFP_KERNEL);
+	if (host->cfg->needs_desc_sync)
+		host->sg_cpu = dma_alloc_noncoherent(&pdev->dev, PAGE_SIZE,
+						     &host->sg_dma, DMA_BIDIRECTIONAL,
+						     GFP_KERNEL);
+	else
+		host->sg_cpu = dma_alloc_coherent(&pdev->dev, PAGE_SIZE,
+						  &host->sg_dma, GFP_KERNEL);
 	if (!host->sg_cpu)
 		return dev_err_probe(&pdev->dev, -ENOMEM,
 				     "Failed to allocate DMA descriptor mem\n");
@@ -1476,7 +1539,7 @@ static int sunxi_mmc_probe(struct platform_device *pdev)
 	return 0;
 
 error_free_dma:
-	dma_free_coherent(&pdev->dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
+	sunxi_mmc_free_descriptors(host);
 	return ret;
 }
 
@@ -1491,7 +1554,7 @@ static void sunxi_mmc_remove(struct platform_device *pdev)
 		disable_irq(host->irq);
 		sunxi_mmc_disable(host);
 	}
-	dma_free_coherent(&pdev->dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
+	sunxi_mmc_free_descriptors(host);
 }
 
 static int sunxi_mmc_runtime_resume(struct device *dev)
