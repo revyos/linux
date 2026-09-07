@@ -19,6 +19,11 @@ properties:
     const: '/'
   compatible:
     oneOf:
+      - description: Avaota F2
+        items:
+          - const: avaota,avaota-f2
+          - const: allwinner,sun252i-v861
+
       - description: Dongshan Nezha STU SoM
         items:
           - const: 100ask,dongshan-nezha-stu
