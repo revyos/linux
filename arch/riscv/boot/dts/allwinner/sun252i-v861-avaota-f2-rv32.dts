@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/* Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn> */
+
+#include "sun252i-v861-avaota-f2.dts"
+
+&cpu0 {
+	riscv,isa-base = "rv32i";
+	riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "v",
+		"zicbom", "zicbop", "zicboz", "zicntr", "zicond",
+		"zicsr", "zifencei", "zihintntl", "zihintpause",
+		"zihpm", "zawrs", "zfa", "zfbfmin", "zfh",
+		"zba", "zbb", "zbc", "zbs", "sscofpmf",
+		"zvfbfmin", "zvfbfwma", "svinval";
+	mmu-type = "riscv,sv32";
+};
+
+&cpu1 {
+	riscv,isa-base = "rv32i";
+	riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "v",
+		"zicbom", "zicbop", "zicboz", "zicntr", "zicond",
+		"zicsr", "zifencei", "zihintntl", "zihintpause",
+		"zihpm", "zawrs", "zfa", "zfbfmin", "zfh",
+		"zba", "zbb", "zbc", "zbs", "sscofpmf",
+		"zvfbfmin", "zvfbfwma", "svinval";
+	mmu-type = "riscv,sv32";
+};
