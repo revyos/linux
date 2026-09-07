@@ -1,0 +1,91 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/* Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn> */
+
+/dts-v1/;
+
+#include "sun252i-v861.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Avaota F2";
+	compatible = "avaota,avaota-f2", "allwinner,sun252i-v861";
+
+	aliases {
+		serial0 = &uart0;
+		mmc0 = &mmc0;
+		spi0 = &spif;
+	};
+
+	reg_vcc3v3: regulator-vcc3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	/* U-Boot updates this node with the detected DRAM capacity. */
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0 0x40000000 0 0x08000000>;
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&pio {
+	vcc-pc-supply = <&reg_vcc3v3>;
+	vcc-pf-supply = <&reg_vcc3v3>;
+};
+
+&mmc0 {
+	vmmc-supply = <&reg_vcc3v3>;
+	vqmmc-supply = <&reg_vcc3v3>;
+	bus-width = <4>;
+	max-frequency = <50000000>;
+	cap-sd-highspeed;
+	no-1-8-v;
+	cd-gpios = <&pio 5 6 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+	status = "okay";
+};
+
+&spif {
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <50000000>;
+		spi-rx-bus-width = <1>;
+		spi-tx-bus-width = <1>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "bootloader";
+				reg = <0 0x100000>;
+				read-only;
+			};
+
+			partition@100000 {
+				label = "linux-fit";
+				reg = <0x100000 0x700000>;
+				read-only;
+			};
+
+			partition@800000 {
+				label = "data";
+				reg = <0x800000 0x800000>;
+			};
+		};
+	};
+};
