@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi/allwinner,sun252i-v861-spif.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Allwinner V861 dedicated SPI flash controller
+
+maintainers:
+  - Han Gao <gaohan@iscas.ac.cn>
+
+allOf:
+  - $ref: spi-controller.yaml#
+
+properties:
+  compatible:
+    const: allwinner,sun252i-v861-spif
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  clocks:
+    items:
+      - description: Bus clock
+      - description: Module clock
+
+  clock-names:
+    items:
+      - const: ahb
+      - const: mod
+
+  resets:
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+  - clock-names
+  - resets
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/clock/sun252i-v861-ccu.h>
+    #include <dt-bindings/interrupt-controller/irq.h>
+    #include <dt-bindings/reset/sun252i-v861-ccu.h>
+
+    spi@4f00000 {
+        compatible = "allwinner,sun252i-v861-spif";
+        reg = <0x04f00000 0x1000>;
+        interrupts = <19 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&ccu CLK_BUS_SPIF>, <&ccu CLK_SPIF>;
+        clock-names = "ahb", "mod";
+        resets = <&ccu RST_BUS_SPIF>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+    };
