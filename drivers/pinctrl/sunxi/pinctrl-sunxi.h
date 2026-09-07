@@ -140,6 +140,8 @@ struct sunxi_pinctrl_desc {
 	unsigned			pin_base;
 	unsigned			irq_banks;
 	const unsigned int		*irq_bank_map;
+	/* Zero selects the traditional interrupt register base (0x200). */
+	u32				irq_reg_base;
 	bool				irq_read_needs_mux;
 	bool				disable_strict_mode;
 	enum sunxi_desc_bias_voltage	io_bias_cfg_variant;
@@ -240,7 +242,7 @@ static inline u32 sunxi_irq_cfg_reg(const struct sunxi_pinctrl_desc *desc,
 	u8 bank = irq / IRQ_PER_BANK;
 	u8 reg = (irq % IRQ_PER_BANK) / IRQ_CFG_IRQ_PER_REG * 0x04;
 
-	return IRQ_CFG_REG +
+	return (desc->irq_reg_base ?: IRQ_CFG_REG) +
 	       sunxi_irq_hw_bank_num(desc, bank) * IRQ_MEM_SIZE + reg;
 }
 
@@ -252,7 +254,8 @@ static inline u32 sunxi_irq_cfg_offset(u16 irq)
 
 static inline u32 sunxi_irq_ctrl_reg_from_bank(const struct sunxi_pinctrl_desc *desc, u8 bank)
 {
-	return IRQ_CTRL_REG + sunxi_irq_hw_bank_num(desc, bank) * IRQ_MEM_SIZE;
+	return (desc->irq_reg_base ?: IRQ_CFG_REG) + IRQ_CTRL_REG - IRQ_CFG_REG +
+	       sunxi_irq_hw_bank_num(desc, bank) * IRQ_MEM_SIZE;
 }
 
 static inline u32 sunxi_irq_ctrl_reg(const struct sunxi_pinctrl_desc *desc,
@@ -271,13 +274,13 @@ static inline u32 sunxi_irq_ctrl_offset(u16 irq)
 
 static inline u32 sunxi_irq_debounce_reg_from_bank(const struct sunxi_pinctrl_desc *desc, u8 bank)
 {
-	return IRQ_DEBOUNCE_REG +
+	return (desc->irq_reg_base ?: IRQ_CFG_REG) + IRQ_DEBOUNCE_REG - IRQ_CFG_REG +
 	       sunxi_irq_hw_bank_num(desc, bank) * IRQ_MEM_SIZE;
 }
 
 static inline u32 sunxi_irq_status_reg_from_bank(const struct sunxi_pinctrl_desc *desc, u8 bank)
 {
-	return IRQ_STATUS_REG +
+	return (desc->irq_reg_base ?: IRQ_CFG_REG) + IRQ_STATUS_REG - IRQ_CFG_REG +
 	       sunxi_irq_hw_bank_num(desc, bank) * IRQ_MEM_SIZE;
 }
 
