@@ -1,0 +1,116 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/allwinner,sun252i-v861-ccu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Allwinner V861 clock control units
+
+maintainers:
+  - Han Gao <gaohan@iscas.ac.cn>
+
+properties:
+  compatible:
+    enum:
+      - allwinner,sun252i-v861-ccu
+      - allwinner,sun252i-v861-r-ccu
+      - allwinner,sun252i-v861-rtc-ccu
+
+  reg:
+    maxItems: 1
+
+  '#clock-cells':
+    const: 1
+
+  '#reset-cells':
+    const: 1
+
+  clocks:
+    minItems: 2
+    maxItems: 4
+
+  clock-names:
+    minItems: 2
+    maxItems: 4
+
+required:
+  - compatible
+  - reg
+  - '#clock-cells'
+  - clocks
+  - clock-names
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          const: allwinner,sun252i-v861-ccu
+    then:
+      properties:
+        clocks:
+          items:
+            - description: 24 MHz oscillator
+            - description: Low-speed oscillator
+            - description: Internal oscillator
+        clock-names:
+          items:
+            - const: hosc
+            - const: losc
+            - const: iosc
+      required:
+        - '#reset-cells'
+
+  - if:
+      properties:
+        compatible:
+          const: allwinner,sun252i-v861-r-ccu
+    then:
+      properties:
+        clocks:
+          items:
+            - description: 24 MHz oscillator
+            - description: Low-speed oscillator
+            - description: Internal oscillator
+            - description: Peripheral PLL 200 MHz output
+        clock-names:
+          items:
+            - const: hosc
+            - const: losc
+            - const: iosc
+            - const: pll-periph
+      required:
+        - '#reset-cells'
+
+  - if:
+      properties:
+        compatible:
+          const: allwinner,sun252i-v861-rtc-ccu
+    then:
+      properties:
+        '#reset-cells': false
+        clocks:
+          items:
+            - description: Internal 16 MHz oscillator
+            - description: External 32768 Hz oscillator
+            - description: 24 MHz oscillator
+        clock-names:
+          items:
+            - const: iosc
+            - const: ext-osc32k
+            - const: hosc
+
+additionalProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/clock/sun252i-v861-rtc-ccu.h>
+
+    clock-controller@2001000 {
+        compatible = "allwinner,sun252i-v861-ccu";
+        reg = <0x02001000 0x1000>;
+        clocks = <&hosc>, <&rtc_ccu CLK_RTC_LOSC>,
+                 <&rtc_ccu CLK_RTC_IOSC>;
+        clock-names = "hosc", "losc", "iosc";
+        #clock-cells = <1>;
+        #reset-cells = <1>;
+    };
