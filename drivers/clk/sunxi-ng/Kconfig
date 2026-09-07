@@ -7,6 +7,26 @@ config SUNXI_CCU
 
 if SUNXI_CCU
 
+config SUN252I_V861_CCU
+	tristate "Support for the Allwinner V861 CCU"
+	depends on RISCV || COMPILE_TEST
+	default ARCH_SUNXI
+	help
+	  Provide peripheral PLL outputs, bus clocks and reset lines for the
+	  Allwinner V861 UART, I2C, MMC and SPI controllers. CPU and DRAM PLL
+	  settings are left as configured by firmware.
+	  This uses the common sunxi-ng clock and reset framework.
+
+config SUN252I_V861_R_CCU
+	tristate "Support for the Allwinner V861 always-on CCUs"
+	depends on RISCV || COMPILE_TEST
+	default ARCH_SUNXI
+	help
+	  Provide the always-on bus clocks and oscillator selection used by
+	  the V861 RTC clock domain and R-PIO. The RTC counter itself is not
+	  managed by this driver. Firmware oscillator calibration is retained.
+	  This uses the common sunxi-ng clock and reset framework.
+
 config SUNIV_F1C100S_CCU
 	tristate "Support for the Allwinner newer F1C100s CCU"
 	default ARCH_SUNXI

@@ -79,3 +79,6 @@ sun8i-r-ccu-y			+= ccu-sun8i-r.o
 sun9i-a80-ccu-y			+= ccu-sun9i-a80.o
 sun9i-a80-de-ccu-y		+= ccu-sun9i-a80-de.o
 sun9i-a80-usb-ccu-y		+= ccu-sun9i-a80-usb.o
+# Allwinner V861 peripheral clocks
+obj-$(CONFIG_SUN252I_V861_CCU) += ccu-sun252i-v861.o
+obj-$(CONFIG_SUN252I_V861_R_CCU) += ccu-sun252i-v861-r.o
