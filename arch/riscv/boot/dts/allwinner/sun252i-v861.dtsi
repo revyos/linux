@@ -1,0 +1,244 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/* Copyright (c) 2026 Han Gao <gaohan@iscas.ac.cn> */
+
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/clock/sun252i-v861-ccu.h>
+#include <dt-bindings/clock/sun252i-v861-r-ccu.h>
+#include <dt-bindings/clock/sun252i-v861-rtc-ccu.h>
+#include <dt-bindings/reset/sun252i-v861-ccu.h>
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <24000000>;
+
+		cpu0: cpu@0 {
+			compatible = "thead,c907", "riscv";
+			device_type = "cpu";
+			reg = <0>;
+			mmu-type = "riscv,sv39";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "v",
+				"zicbom", "zicbop", "zicboz", "zicntr", "zicond",
+				"zicsr", "zifencei", "zihintntl", "zihintpause",
+				"zihpm", "zawrs", "zfa", "zfbfmin", "zfh",
+				"zba", "zbb", "zbc", "zbs", "sscofpmf",
+				"zvfbfmin", "zvfbfwma", "svinval", "svnapot", "svpbmt";
+			riscv,cbom-block-size = <64>;
+			riscv,cbop-block-size = <64>;
+			riscv,cboz-block-size = <64>;
+
+			cpu0_intc: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+				#interrupt-cells = <1>;
+			};
+		};
+
+		cpu1: cpu@1 {
+			compatible = "thead,c907", "riscv";
+			device_type = "cpu";
+			reg = <1>;
+			mmu-type = "riscv,sv39";
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "v",
+				"zicbom", "zicbop", "zicboz", "zicntr", "zicond",
+				"zicsr", "zifencei", "zihintntl", "zihintpause",
+				"zihpm", "zawrs", "zfa", "zfbfmin", "zfh",
+				"zba", "zbb", "zbc", "zbs", "sscofpmf",
+				"zvfbfmin", "zvfbfwma", "svinval", "svnapot", "svpbmt";
+			riscv,cbom-block-size = <64>;
+			riscv,cbop-block-size = <64>;
+			riscv,cboz-block-size = <64>;
+
+			cpu1_intc: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+				#interrupt-cells = <1>;
+			};
+		};
+	};
+
+	hosc: osc24M-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+		clock-output-names = "osc24M";
+	};
+
+	iosc: osc16M-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <16000000>;
+		clock-output-names = "osc16M";
+	};
+
+	ext_osc32k: osc32k-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <32768>;
+		clock-output-names = "ext-osc32k";
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		interrupt-parent = <&plic>;
+		ranges;
+		dma-noncoherent;
+
+		pio: pinctrl@2000000 {
+			compatible = "allwinner,sun252i-v861-pinctrl";
+			reg = <0 0x02000000 0 0x400>;
+			interrupts = <67 IRQ_TYPE_LEVEL_HIGH>, <71 IRQ_TYPE_LEVEL_HIGH>,
+				     <73 IRQ_TYPE_LEVEL_HIGH>, <75 IRQ_TYPE_LEVEL_HIGH>,
+				     <77 IRQ_TYPE_LEVEL_HIGH>, <79 IRQ_TYPE_LEVEL_HIGH>,
+				     <81 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_APB0>, <&hosc>, <&rtc_ccu CLK_RTC_LOSC>;
+			clock-names = "apb", "hosc", "losc";
+			gpio-controller;
+			#gpio-cells = <3>;
+			interrupt-controller;
+			#interrupt-cells = <3>;
+
+			uart0_ph_pins: uart0-ph-pins {
+				pins = "PH9", "PH10";
+				function = "uart0";
+				allwinner,pinmux = <5>;
+				bias-pull-up;
+			};
+
+			mmc0_pins: mmc0-pins {
+				pins = "PF0", "PF1", "PF3", "PF4", "PF5";
+				function = "mmc0";
+				allwinner,pinmux = <2>;
+				bias-pull-up;
+			};
+
+			mmc0_clk_pin: mmc0-clk-pin {
+				pins = "PF2";
+				function = "mmc0";
+				allwinner,pinmux = <2>;
+				bias-disable;
+			};
+
+			spif_pins: spif-pins {
+				pins = "PC0", "PC2", "PC3";
+				function = "spif";
+				allwinner,pinmux = <2>;
+				bias-disable;
+			};
+
+			spif_data_pins: spif-data-pins {
+				pins = "PC1", "PC4", "PC5";
+				function = "spif";
+				allwinner,pinmux = <2>;
+				bias-pull-up;
+			};
+		};
+
+		r_pio: pinctrl@2000540 {
+			compatible = "allwinner,sun252i-v861-r-pinctrl";
+			reg = <0 0x02000540 0 0x60>;
+			interrupts = <85 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&r_ccu CLK_R_APB0>, <&hosc>, <&rtc_ccu CLK_RTC_LOSC>;
+			clock-names = "apb", "hosc", "losc";
+			gpio-controller;
+			#gpio-cells = <3>;
+			interrupt-controller;
+			#interrupt-cells = <3>;
+
+			i2c2_pl_pins: i2c2-pl-pins {
+				pins = "PL3", "PL4";
+				function = "i2c2";
+				allwinner,pinmux = <2>;
+				bias-pull-up;
+			};
+		};
+
+		ccu: clock-controller@2001000 {
+			compatible = "allwinner,sun252i-v861-ccu";
+			reg = <0 0x02001000 0 0x1000>;
+			clocks = <&hosc>, <&rtc_ccu CLK_RTC_LOSC>, <&rtc_ccu CLK_RTC_IOSC>;
+			clock-names = "hosc", "losc", "iosc";
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+		};
+
+		uart0: serial@2500000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0 0x02500000 0 0x400>;
+			interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			clocks = <&ccu CLK_BUS_UART0>;
+			resets = <&ccu RST_BUS_UART0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_ph_pins>;
+			status = "disabled";
+		};
+
+		mmc0: mmc@4020000 {
+			compatible = "allwinner,sun252i-v861-mmc";
+			reg = <0 0x04020000 0 0x1000>;
+			interrupts = <40 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_BUS_MMC0>, <&ccu CLK_MMC0>;
+			clock-names = "ahb", "mmc";
+			resets = <&ccu RST_BUS_MMC0>;
+			reset-names = "ahb";
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc0_pins>, <&mmc0_clk_pin>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spif: spi@4f00000 {
+			compatible = "allwinner,sun252i-v861-spif";
+			reg = <0 0x04f00000 0 0x1000>;
+			interrupts = <19 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_BUS_SPIF>, <&ccu CLK_SPIF>;
+			clock-names = "ahb", "mod";
+			resets = <&ccu RST_BUS_SPIF>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&spif_pins>, <&spif_data_pins>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		r_ccu: clock-controller@7010000 {
+			compatible = "allwinner,sun252i-v861-r-ccu";
+			reg = <0 0x07010000 0 0x210>;
+			clocks = <&hosc>, <&rtc_ccu CLK_RTC_32K>,
+				 <&rtc_ccu CLK_RTC_IOSC>, <&ccu CLK_PLL_PERIPH_200M>;
+			clock-names = "hosc", "losc", "iosc", "pll-periph";
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+		};
+
+		rtc_ccu: clock-controller@7090000 {
+			compatible = "allwinner,sun252i-v861-rtc-ccu";
+			reg = <0 0x07090000 0 0x164>;
+			clocks = <&iosc>, <&ext_osc32k>, <&hosc>;
+			clock-names = "iosc", "ext-osc32k", "hosc";
+			#clock-cells = <1>;
+		};
+
+		plic: interrupt-controller@30000000 {
+			compatible = "allwinner,sun252i-v861-plic", "thead,c900-plic";
+			reg = <0 0x30000000 0 0x00402000>;
+			interrupts-extended = <&cpu0_intc 11>, <&cpu0_intc 9>,
+					      <&cpu1_intc 11>, <&cpu1_intc 9>;
+			riscv,ndev = <150>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			#address-cells = <0>;
+		};
+	};
+};
