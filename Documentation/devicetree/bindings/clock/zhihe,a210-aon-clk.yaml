@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/zhihe,a210-aon-clk.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Zhihe A210 always-on peripheral clock controller
+
+maintainers:
+  - Han Gao <gaohan@iscas.ac.cn>
+
+description: |
+  E902 firmware selects the AON source and divider. The application
+  processor reads that selection and controls the separate I2C1 gates.
+  The PMIC I2C0 and E902 clocks remain owned by the firmware.
+
+properties:
+  compatible:
+    const: zhihe,a210-aon-clk
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    items:
+      - description: High-speed AON reference
+      - description: External oscillator
+      - description: Internal RC oscillator
+      - description: RTC oscillator
+
+  clock-names:
+    items:
+      - const: high
+      - const: osc
+      - const: rc
+      - const: rtc
+
+  '#clock-cells':
+    const: 1
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - '#clock-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    clock-controller@30844000 {
+        compatible = "zhihe,a210-aon-clk";
+        reg = <0x30844000 0x1c>;
+        clocks = <&aon_high>, <&osc24m>, <&rc26m>, <&rtc32k>;
+        clock-names = "high", "osc", "rc", "rtc";
+        #clock-cells = <1>;
+    };
+...
