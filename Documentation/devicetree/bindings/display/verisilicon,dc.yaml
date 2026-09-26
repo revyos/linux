@@ -17,9 +17,13 @@ properties:
     items:
       - enum:
           - thead,th1520-dc8200
+          - zhihe,a210-dc8200
       - const: verisilicon,dc # DC IPs have discoverable ID/revision registers
 
   reg:
+    maxItems: 1
+
+  power-domains:
     maxItems: 1
 
   interrupts:
