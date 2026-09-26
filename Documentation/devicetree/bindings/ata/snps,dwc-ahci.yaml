@@ -33,6 +33,9 @@ properties:
       - description: SPEAr1340 AHCI SATA device
         const: snps,spear-ahci
 
+  power-domains:
+    maxItems: 1
+
   iommus:
     minItems: 1
     maxItems: 3
