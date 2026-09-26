@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/phy/zhihe,a210-usb2-phy.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Zhihe A210 USB2 femtoPHY
+
+maintainers:
+  - Han Gao <gaohan@iscas.ac.cn>
+
+description: |
+  Each DWC2 controller has a dedicated USB2 PHY register bank. The PHY
+  uses the connected controller's fixed dr_mode for its pull-downs.
+  PHY1 places these controls at different bit positions from PHY0.
+  The DWC3 companion PHY has a separate UTMI register bank and uses
+  controller-managed role switching. Board VBUS switching belongs to
+  the controller regulator or Type-C port manager, not the PHY.
+
+properties:
+  compatible:
+    enum:
+      - zhihe,a210-usb2-phy
+      - zhihe,a210-usb2-phy1
+      - zhihe,a210-usb31-usb2-phy
+  reg:
+    maxItems: 1
+  clocks:
+    maxItems: 1
+  clock-names:
+    const: apb
+  resets:
+    maxItems: 1
+  reset-names:
+    const: phy
+  power-domains:
+    maxItems: 1
+  '#phy-cells':
+    const: 0
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - resets
+  - reset-names
+  - power-domains
+  - '#phy-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    phy@8301000 {
+        compatible = "zhihe,a210-usb2-phy1";
+        reg = <0x8301000 0x20>;
+        clocks = <&usb_clk 1>;
+        clock-names = "apb";
+        resets = <&usb_rst 1>;
+        reset-names = "phy";
+        power-domains = <&usb_power>;
+        #phy-cells = <0>;
+    };
+...
