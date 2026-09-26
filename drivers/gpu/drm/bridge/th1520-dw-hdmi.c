@@ -11,6 +11,7 @@
 #include <linux/clk.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
+#include <linux/property.h>
 #include <linux/reset.h>
 
 #include <drm/bridge/dw_hdmi.h>
@@ -102,6 +103,38 @@ static int th1520_hdmi_phy_configure(struct dw_hdmi *hdmi, void *data,
 	return -EINVAL;
 }
 
+static int a210_hdmi_phy_configure(struct dw_hdmi *hdmi, void *data,
+				   unsigned long mpixelclock)
+{
+	int ret;
+
+	ret = th1520_hdmi_phy_configure(hdmi, data, mpixelclock);
+	if (ret)
+		return ret;
+
+	/* A210 Gen2 PHY: lower swing and TX_TRBON for 1080p. */
+	if (mpixelclock >= 148000000 && mpixelclock <= 149000000) {
+		dw_hdmi_phy_i2c_write(hdmi, 0x0180,
+				      TH1520_HDMI_PHY_VLEVCTRL);
+		dw_hdmi_phy_i2c_write(hdmi, 0x8188,
+				      TH1520_HDMI_PHY_CKSYMTXCTRL);
+	}
+
+	return 0;
+}
+
+static const struct dw_hdmi_plat_data th1520_hdmi_data = {
+	.output_port = 1,
+	.mode_valid = th1520_hdmi_mode_valid,
+	.configure_phy = th1520_hdmi_phy_configure,
+};
+
+static const struct dw_hdmi_plat_data a210_hdmi_data = {
+	.output_port = 1,
+	.mode_valid = th1520_hdmi_mode_valid,
+	.configure_phy = a210_hdmi_phy_configure,
+};
+
 static int th1520_dw_hdmi_probe(struct platform_device *pdev)
 {
 	struct th1520_hdmi *hdmi;
@@ -113,6 +146,8 @@ static int th1520_dw_hdmi_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	plat_data = &hdmi->plat_data;
+	*plat_data = *(const struct dw_hdmi_plat_data *)
+		device_get_match_data(dev);
 
 	hdmi->pixclk = devm_clk_get_enabled(dev, "pix");
 	if (IS_ERR(hdmi->pixclk))
@@ -129,9 +164,6 @@ static int th1520_dw_hdmi_probe(struct platform_device *pdev)
 		return dev_err_probe(dev, PTR_ERR(hdmi->prst),
 				     "Unable to get apb reset\n");
 
-	plat_data->output_port = 1;
-	plat_data->mode_valid = th1520_hdmi_mode_valid;
-	plat_data->configure_phy = th1520_hdmi_phy_configure;
 	plat_data->priv_data = hdmi;
 
 	hdmi->dw_hdmi = dw_hdmi_probe(pdev, plat_data);
@@ -151,7 +183,8 @@ static void th1520_dw_hdmi_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id th1520_dw_hdmi_of_table[] = {
-	{ .compatible = "thead,th1520-dw-hdmi" },
+	{ .compatible = "thead,th1520-dw-hdmi", .data = &th1520_hdmi_data },
+	{ .compatible = "zhihe,a210-dw-hdmi", .data = &a210_hdmi_data },
 	{ /* Sentinel */ },
 };
 MODULE_DEVICE_TABLE(of, th1520_dw_hdmi_of_table);
