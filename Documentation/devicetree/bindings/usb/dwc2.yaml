@@ -16,6 +16,9 @@ allOf:
 properties:
   compatible:
     oneOf:
+      - items:
+          - const: zhihe,a210-usb
+          - const: snps,dwc2
       - const: brcm,bcm2835-usb
       - const: hisilicon,hi6220-usb
       - const: ingenic,jz4775-otg
