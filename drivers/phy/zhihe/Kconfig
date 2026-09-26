@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config PHY_ZHIHE_A210_E16
+	tristate "Zhihe A210 E16 PCIe PHY"
+	depends on ARCH_ZHIHE || COMPILE_TEST
+	depends on OF && COMMON_CLK
+	select GENERIC_PHY
+	help
+	  Enable the shared Synopsys E16 PHY for the A210 PCIe root ports.
+	  The driver configures lane routing and analog calibration using
+	  the board reference clock. Both root ports share the PHY lifetime.
+	  Say Y or M when using PCIe on a Zhihe A210 board.
