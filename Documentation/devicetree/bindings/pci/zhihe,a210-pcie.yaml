@@ -1,0 +1,138 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pci/zhihe,a210-pcie.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Zhihe A210 DesignWare PCIe root port
+
+maintainers:
+  - Han Gao <gaohan@iscas.ac.cn>
+
+allOf:
+  - $ref: /schemas/pci/snps,dw-pcie.yaml#
+
+properties:
+  compatible:
+    const: zhihe,a210-pcie
+
+  reg:
+    items:
+      - description: DesignWare DBI registers
+      - description: Downstream configuration window
+      - description: A210 application registers
+
+  reg-names:
+    items:
+      - const: dbi
+      - const: config
+      - const: app
+
+  clocks:
+    items:
+      - description: Auxiliary clock
+      - description: AXI slave clock
+      - description: AXI master clock
+      - description: APB register clock
+
+  clock-names:
+    items:
+      - const: aux
+      - const: slv
+      - const: mstr
+      - const: dbi
+
+  resets:
+    items:
+      - description: APB interface reset
+      - description: Controller power-up reset
+
+  reset-names:
+    items:
+      - const: dbi
+      - const: pwr
+
+  interrupts:
+    maxItems: 1
+
+  interrupt-names:
+    const: msi
+
+  power-domains:
+    maxItems: 1
+
+  phys:
+    maxItems: 1
+
+  phy-names:
+    const: pcie
+
+  num-lanes:
+    enum: [1, 2, 4]
+
+  max-link-speed:
+    maximum: 3
+
+  reset-gpios:
+    maxItems: 1
+
+  vpcie3v3-supply:
+    description: Endpoint 3.3 V supply
+
+  vpcie1v5-supply:
+    description: Endpoint 1.5 V supply, when present
+
+  vpcie12v-supply:
+    description: Endpoint 12 V supply, when present
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - clocks
+  - clock-names
+  - resets
+  - reset-names
+  - interrupts
+  - interrupt-names
+  - power-domains
+  - phys
+  - phy-names
+  - num-lanes
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/interrupt-controller/irq.h>
+    pcie@b000000 {
+        compatible = "zhihe,a210-pcie";
+        reg = <0xb000000 0x800000>, <0x40000000 0x100000>,
+              <0xa004000 0x1000>;
+        reg-names = "dbi", "config", "app";
+        device_type = "pci";
+        #address-cells = <3>;
+        #size-cells = <2>;
+        #interrupt-cells = <1>;
+        bus-range = <0 255>;
+        ranges = <0x02000000 0 0x40100000 0x40100000 0 0x800000>;
+        interrupt-parent = <&plic>;
+        interrupts = <139 IRQ_TYPE_LEVEL_HIGH>;
+        interrupt-names = "msi";
+        interrupt-map-mask = <0 0 0 7>;
+        interrupt-map = <0 0 0 1 &plic 140 IRQ_TYPE_LEVEL_HIGH>,
+                        <0 0 0 2 &plic 141 IRQ_TYPE_LEVEL_HIGH>,
+                        <0 0 0 3 &plic 142 IRQ_TYPE_LEVEL_HIGH>,
+                        <0 0 0 4 &plic 143 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&pcie_clk 0>, <&pcie_clk 1>, <&pcie_clk 2>,
+                 <&pcie_clk 3>;
+        clock-names = "aux", "slv", "mstr", "dbi";
+        resets = <&pcie_rst 2>, <&pcie_rst 3>;
+        reset-names = "dbi", "pwr";
+        power-domains = <&pcie_power>;
+        phys = <&e16>;
+        phy-names = "pcie";
+        num-lanes = <1>;
+        max-link-speed = <3>;
+    };
+...
