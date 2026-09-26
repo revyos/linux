@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/iio/adc/thead,th1520-adc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: T-Head TH1520 and Zhihe A210 ADC
+
+maintainers:
+  - Han Gao <gaohan@iscas.ac.cn>
+
+description:
+  A 12-bit ADC with eight inputs on TH1520 and four inputs on A210.
+
+properties:
+  compatible:
+    enum:
+      - thead,th1520-adc
+      - zhihe,a210-adc
+  reg:
+    maxItems: 1
+  clocks:
+    maxItems: 1
+  resets:
+    maxItems: 1
+  interrupts:
+    maxItems: 1
+  power-domains:
+    maxItems: 1
+  vref-supply:
+    description: External analog reference voltage.
+  '#io-channel-cells':
+    const: 1
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - resets
+  - vref-supply
+  - '#io-channel-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    adc@5a0000 {
+        compatible = "zhihe,a210-adc";
+        reg = <0x5a0000 0x1000>;
+        clocks = <&clk 1>;
+        resets = <&rst 1>;
+        vref-supply = <&vref>;
+        #io-channel-cells = <1>;
+    };
+...
