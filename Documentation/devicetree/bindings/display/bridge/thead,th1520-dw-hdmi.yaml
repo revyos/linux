@@ -20,6 +20,7 @@ properties:
   compatible:
     enum:
       - thead,th1520-dw-hdmi
+      - zhihe,a210-dw-hdmi
 
   reg-io-width:
     const: 4
@@ -33,6 +34,9 @@ properties:
       - const: isfr
       - const: cec
       - const: pix
+
+  power-domains:
+    maxItems: 1
 
   resets:
     items:
