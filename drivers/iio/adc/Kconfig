@@ -1693,6 +1693,14 @@ config SUN20I_GPADC
 	  To compile this driver as a module, choose M here: the module will be
 	  called sun20i-gpadc-iio.
 
+config THEAD_ADC
+	tristate "T-Head TH1520 and Zhihe A210 ADC"
+	depends on ARCH_THEAD || ARCH_ZHIHE || COMPILE_TEST
+	depends on HAS_IOMEM
+	help
+	  Support single-ended, single-shot 12-bit voltage measurements
+	  using the ADC in T-Head TH1520 and Zhihe A210 SoCs.
+
 config TI_ADC081C
 	tristate "Texas Instruments ADC081C/ADC101C/ADC121C family"
 	depends on I2C
