@@ -21,3 +21,12 @@ config PHY_ZHIHE_A210_USB2
 	  Each PHY uses the connected controller's fixed host or device
 	  role. Clock and reset resources are managed independently.
 	  Say Y or M for boards using the A210 DWC2 controllers.
+
+config PHY_ZHIHE_A210_C10
+	tristate "Zhihe A210 C10 USB3 PHY"
+	depends on ARCH_ZHIHE || COMPILE_TEST
+	depends on OF && TYPEC
+	select GENERIC_PHY
+	help
+	  Support the USB3 path and Type-C orientation switch of the
+	  Synopsys C10 PHY in the Zhihe A210 SoC.
