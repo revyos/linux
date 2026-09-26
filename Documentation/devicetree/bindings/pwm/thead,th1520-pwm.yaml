@@ -14,7 +14,11 @@ allOf:
 
 properties:
   compatible:
-    const: thead,th1520-pwm
+    oneOf:
+      - const: thead,th1520-pwm
+      - items:
+          - const: zhihe,a210-pwm
+          - const: thead,th1520-pwm
 
   reg:
     maxItems: 1
@@ -22,6 +26,9 @@ properties:
   clocks:
     items:
       - description: SoC PWM clock
+
+  power-domains:
+    maxItems: 1
 
   "#pwm-cells":
     const: 3
