@@ -577,4 +577,17 @@ config PCIE_ULTRARISC
 	  By default, this symbol is enabled when ARCH_ULTRARISC is active,
 	  requiring no further configuration on that platform.
 
+config PCIE_A210
+	tristate "Zhihe A210 PCIe host controller"
+	depends on ARCH_ZHIHE || COMPILE_TEST
+	depends on OF
+	select PCI_MSI
+	select PCIE_DW_HOST
+	select GENERIC_PHY
+	help
+	  Enable the DesignWare PCIe root ports on the Zhihe A210 SoC.
+	  This driver supports host mode with standard PCI enumeration
+	  and MSI interrupts. Endpoint mode is not implemented.
+	  Say Y or M when using PCIe on a Zhihe A210 board.
+
 endmenu
