@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/phy/zhihe,a210-c10-phy.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Zhihe A210 Synopsys C10 USB3 PHY
+
+maintainers:
+  - Han Gao <gaohan@iscas.ac.cn>
+
+description:
+  USB3 PHY with an integrated Type-C lane crossbar. The Type-C port
+  manager controls cable orientation through the standard switch API.
+
+properties:
+  compatible:
+    const: zhihe,a210-c10-phy
+  reg:
+    maxItems: 1
+    description: Type-C adaptation block registers.
+  clocks:
+    maxItems: 3
+  clock-names:
+    items:
+      - const: apb
+      - const: ref
+      - const: suspend
+  resets:
+    maxItems: 2
+  reset-names:
+    items:
+      - const: apb
+      - const: phy
+  power-domains:
+    maxItems: 1
+  '#phy-cells':
+    const: 0
+  orientation-switch:
+    type: boolean
+  port:
+    $ref: /schemas/graph.yaml#/properties/port
+    description: Connection to the USB-C connector superspeed port.
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - resets
+  - reset-names
+  - power-domains
+  - '#phy-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    phy@807c000 {
+        compatible = "zhihe,a210-c10-phy";
+        reg = <0x807c000 0x100>;
+        clocks = <&clk 1>, <&clk 2>, <&clk 3>;
+        clock-names = "apb", "ref", "suspend";
+        resets = <&rst 1>, <&rst 2>;
+        reset-names = "apb", "phy";
+        power-domains = <&usb_power>;
+        #phy-cells = <0>;
+    };
+...
