@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config SND_SOC_THEAD_I2S
+	tristate "T-Head stereo I2S controller"
+	depends on ARCH_ZHIHE || COMPILE_TEST
+	depends on COMMON_CLK && DMADEVICES && OF
+	select MFD_SYSCON
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	help
+	  Enable the stereo I2S controller used by the Zhihe A210 SoC.
+	  Audio transfers use the standard DMAengine PCM interface.
+
+	  To compile this driver as a module, choose M here. The module
+	  will be called thead-i2s.
