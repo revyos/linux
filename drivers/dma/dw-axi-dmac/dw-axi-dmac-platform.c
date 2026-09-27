@@ -573,10 +573,8 @@ static void dw_axi_dma_set_hw_channel(struct axi_dma_chan *chan, bool set)
 	struct axi_dma_chip *chip = chan->chip;
 	unsigned long reg_value, val;
 
-	if (!chip->apb_regs) {
-		dev_err(chip->dev, "apb_regs not initialized\n");
+	if (!chip->apb_regs)
 		return;
-	}
 
 	/*
 	 * An unused DMA channel has a default value of 0x3F.
