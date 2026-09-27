@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/zhihe,a210-i2s.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Zhihe A210 stereo I2S controller
+
+maintainers:
+  - Han Gao <gaohan@iscas.ac.cn>
+
+allOf:
+  - $ref: dai-common.yaml#
+
+properties:
+  compatible:
+    const: zhihe,a210-i2s
+  reg:
+    maxItems: 1
+  interrupts:
+    maxItems: 1
+  clocks:
+    maxItems: 2
+  clock-names:
+    items:
+      - const: pclk
+      - const: mclk
+  resets:
+    maxItems: 1
+  power-domains:
+    maxItems: 1
+  dmas:
+    maxItems: 2
+  dma-names:
+    items:
+      - const: tx
+      - const: rx
+  zhihe,syscon:
+    description: Peripheral system control register and I2S enable bit.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      - items:
+          - description: Phandle to the peripheral control registers.
+          - description: Offset of the I2S control register.
+          - description: Mask of the controller enable bit.
+  '#sound-dai-cells':
+    const: 0
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - resets
+  - dmas
+  - dma-names
+  - zhihe,syscon
+  - '#sound-dai-cells'
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    i2s@840a000 {
+        compatible = "zhihe,a210-i2s";
+        reg = <0x840a000 0x1000>;
+        clocks = <&clk 1>, <&clk 2>;
+        clock-names = "pclk", "mclk";
+        resets = <&rst 1>;
+        zhihe,syscon = <&peri2_ctrl 0 0x1>;
+        dmas = <&dma 38>, <&dma 37>;
+        dma-names = "tx", "rx";
+        #sound-dai-cells = <0>;
+    };
+...
