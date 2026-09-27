@@ -647,6 +647,17 @@ static void set_desc_dest_master(struct axi_dma_hw_desc *hw_desc,
 	hw_desc->lli->ctl_lo = cpu_to_le32(val);
 }
 
+static u32 axi_dma_burst_size(u32 maxburst)
+{
+	/* Keep the existing default when the client has no burst limit. */
+	if (!maxburst)
+		return DWAXIDMAC_BURST_TRANS_LEN_4;
+	if (maxburst < 4)
+		return DWAXIDMAC_BURST_TRANS_LEN_1;
+	return min_t(u32, ilog2(maxburst) - 1,
+		     DWAXIDMAC_BURST_TRANS_LEN_1024);
+}
+
 static int dw_axi_dma_set_hw_desc(struct axi_dma_chan *chan,
 				  struct axi_dma_hw_desc *hw_desc,
 				  dma_addr_t mem_addr, size_t len)
@@ -722,8 +733,10 @@ static int dw_axi_dma_set_hw_desc(struct axi_dma_chan *chan,
 
 	hw_desc->lli->block_ts_lo = cpu_to_le32(block_ts - 1);
 
-	ctllo |= DWAXIDMAC_BURST_TRANS_LEN_4 << CH_CTL_L_DST_MSIZE_POS |
-		 DWAXIDMAC_BURST_TRANS_LEN_4 << CH_CTL_L_SRC_MSIZE_POS;
+	ctllo |= axi_dma_burst_size(chan->config.dst_maxburst) <<
+		 CH_CTL_L_DST_MSIZE_POS |
+		 axi_dma_burst_size(chan->config.src_maxburst) <<
+		 CH_CTL_L_SRC_MSIZE_POS;
 	hw_desc->lli->ctl_lo = cpu_to_le32(ctllo);
 
 	set_desc_src_master(hw_desc);
