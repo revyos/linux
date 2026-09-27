@@ -14,6 +14,8 @@
 #include <drm/drm_file.h>
 #include <drm/drm_mm.h>
 
+#include <asm/barrier.h>
+
 #include <linux/bits.h>
 #include <linux/compiler_attributes.h>
 #include <linux/compiler_types.h>
@@ -65,9 +67,11 @@ struct pvr_fw_version {
 /**
  * struct pvr_device_data - Platform specific data associated with a compatible string.
  * @pwr_ops: Pointer to a structure with platform-specific power functions.
+ * @regs_32bit_only: Use separately fenced 32-bit register transactions.
  */
 struct pvr_device_data {
 	const struct pvr_power_sequence_ops *pwr_ops;
+	bool regs_32bit_only;
 };
 
 /**
@@ -579,6 +583,19 @@ pvr_cr_read32(const struct pvr_device *pvr_dev, u32 reg)
 static __always_inline u64
 pvr_cr_read64(const struct pvr_device *pvr_dev, u32 reg)
 {
+	if (pvr_dev->device_data->regs_32bit_only) {
+		u32 hi, lo;
+
+		hi = ioread32(pvr_dev->regs + reg + 4);
+		/* Order the high-word read before the low-word read. */
+		mb();
+		lo = ioread32(pvr_dev->regs + reg);
+		/* Order the register read before subsequent accesses. */
+		mb();
+
+		return ((u64)hi << 32) | lo;
+	}
+
 	return ioread64(pvr_dev->regs + reg);
 }
 
@@ -603,6 +620,16 @@ pvr_cr_write32(struct pvr_device *pvr_dev, u32 reg, u32 val)
 static __always_inline void
 pvr_cr_write64(struct pvr_device *pvr_dev, u32 reg, u64 val)
 {
+	if (pvr_dev->device_data->regs_32bit_only) {
+		iowrite32(lower_32_bits(val), pvr_dev->regs + reg);
+		/* Order the low-word write before the high-word write. */
+		mb();
+		iowrite32(upper_32_bits(val), pvr_dev->regs + reg + 4);
+		/* Order the register write before subsequent accesses. */
+		mb();
+		return;
+	}
+
 	iowrite64(val, pvr_dev->regs + reg);
 }
 
@@ -648,8 +675,9 @@ pvr_cr_poll_reg64(struct pvr_device *pvr_dev, u32 reg_addr, u64 reg_value,
 {
 	u64 value;
 
-	return readq_poll_timeout(pvr_dev->regs + reg_addr, value,
-		(value & reg_mask) == reg_value, 0, timeout_usec);
+	return read_poll_timeout(pvr_cr_read64, value,
+				 (value & reg_mask) == reg_value, 0,
+				 timeout_usec, false, pvr_dev, reg_addr);
 }
 
 /**

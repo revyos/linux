@@ -1492,7 +1492,16 @@ static const struct pvr_device_data pvr_device_data_pwrseq = {
 	.pwr_ops = &pvr_power_sequence_ops_pwrseq,
 };
 
+static const struct pvr_device_data pvr_device_data_a210 = {
+	.pwr_ops = &pvr_power_sequence_ops_manual,
+	.regs_32bit_only = true,
+};
+
 static const struct of_device_id dt_match[] = {
+	{
+		.compatible = "zhihe,a210-gpu",
+		.data = &pvr_device_data_a210,
+	},
 	{
 		.compatible = "thead,th1520-gpu",
 		.data = &pvr_device_data_pwrseq,
