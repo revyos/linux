@@ -116,6 +116,7 @@ config SND_SOC_ALL_CODECS
 	imply SND_SOC_DA732X
 	imply SND_SOC_DA9055
 	imply SND_SOC_DMIC
+	imply SND_SOC_ES8156
 	imply SND_SOC_ES8316
 	imply SND_SOC_ES8323
 	imply SND_SOC_ES8326
@@ -1281,6 +1282,17 @@ config SND_SOC_ES83XX_DSM_COMMON
 config SND_SOC_ES8311
 	tristate "Everest Semi ES8311 CODEC"
 	depends on I2C
+
+config SND_SOC_ES8156
+	tristate "Everest Semiconductor ES8156 stereo DAC"
+	depends on I2C
+	select REGMAP_I2C
+	help
+	  Enable stereo I2S playback through the ES8156 DAC, controlled
+	  over I2C with an external master clock.
+
+	  To compile this driver as a module, choose M here. The module
+	  will be called snd-soc-es8156.
 
 config SND_SOC_ES8316
 	tristate "Everest Semi ES8316 CODEC"
