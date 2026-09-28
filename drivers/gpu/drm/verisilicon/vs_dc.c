@@ -3,6 +3,7 @@
  * Copyright (C) 2025 Icenowy Zheng <uwu@icenowy.me>
  */
 
+#include <linux/clk.h>
 #include <linux/dma-mapping.h>
 #include <linux/irqreturn.h>
 #include <linux/of.h>
@@ -110,10 +111,19 @@ static int vs_dc_probe(struct platform_device *pdev)
 		return irq;
 	}
 
+	/* The primary pixel domain must run during controller initialization. */
+	dc->pix_clk[0] = devm_clk_get(dev, "pix0");
+	if (IS_ERR(dc->pix_clk[0]))
+		return dev_err_probe(dev, PTR_ERR(dc->pix_clk[0]),
+				     "can't get primary pixel clock\n");
+	ret = clk_prepare_enable(dc->pix_clk[0]);
+	if (ret)
+		return ret;
+
 	ret = reset_control_bulk_deassert(VSDC_RESET_COUNT, dc->rsts);
 	if (ret) {
 		dev_err(dev, "can't deassert reset lines\n");
-		return ret;
+		goto err_pix_clk;
 	}
 
 	regs = devm_platform_ioremap_resource(pdev, 0);
@@ -142,7 +152,7 @@ static int vs_dc_probe(struct platform_device *pdev)
 		goto err_rst_assert;
 	}
 
-	for (i = 0; i < dc->identity.display_count; i++) {
+	for (i = 1; i < dc->identity.display_count; i++) {
 		snprintf(pixclk_name, sizeof(pixclk_name), "pix%u", i);
 		dc->pix_clk[i] = devm_clk_get(dev, pixclk_name);
 		if (IS_ERR(dc->pix_clk[i])) {
@@ -165,10 +175,13 @@ static int vs_dc_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_rst_assert;
 
+	clk_disable_unprepare(dc->pix_clk[0]);
 	return 0;
 
 err_rst_assert:
 	reset_control_bulk_assert(VSDC_RESET_COUNT, dc->rsts);
+err_pix_clk:
+	clk_disable_unprepare(dc->pix_clk[0]);
 	return ret;
 }
 
