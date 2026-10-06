@@ -26,7 +26,7 @@ static inline void spacemit_dmmu_fill_pgtable(struct dpu_mmu_tbl *tbl,
 
 	for_each_sgtable_dma_page(sgt, &dma_iter, 0) {
 		/*
-		 * atomic_check sized the table off this same fb; catch a drift
+		 * prepare_fb sized the table off this same fb; catch a drift
 		 */
 		if (WARN_ON_ONCE(n + HW_ALIGN_TTB_NUM >= max_entries))
 			break;
@@ -55,9 +55,19 @@ int spacemit_dmmu_map(struct drm_framebuffer *fb, struct dpu_mmu_tbl *mmu_tbl,
 	struct tbu_instance tbu = { };
 	u32 val;
 
-	sgt = drm_gem_shmem_get_pages_sgt(to_drm_gem_shmem_obj(fb->obj[0]));
-	if (IS_ERR(sgt))
-		return PTR_ERR(sgt);
+	/* prepare_fb pins the cached mapping while errors can still be returned. */
+	sgt = to_drm_gem_shmem_obj(fb->obj[0])->sgt;
+	if (WARN_ON_ONCE(!sgt))
+		return -EINVAL;
+
+	/*
+	 * The shmem helper caches its DMA mapping, but CPU rendering can
+	 * dirty the same framebuffer again before every atomic update.
+	 * Publish those writes before the RDMA command becomes visible.
+	 * Match the DMA_BIDIRECTIONAL mapping used by the GEM shmem and
+	 * PRIME import helpers, even though this device only reads pixels.
+	 */
+	dma_sync_sgtable_for_device(fb->dev->dev, sgt, DMA_BIDIRECTIONAL);
 
 	/* Every advertised format is single-planar */
 	tbu.ttb_pa[0] = mmu_tbl->pa;
