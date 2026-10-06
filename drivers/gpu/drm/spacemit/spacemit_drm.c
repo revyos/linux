@@ -50,7 +50,7 @@ static const struct drm_mode_config_helper_funcs spacemit_drm_mode_config_helper
 };
 
 static const struct drm_mode_config_funcs spacemit_drm_mode_config_funcs = {
-	.fb_create = drm_gem_fb_create,
+	.fb_create = drm_gem_fb_create_with_dirty,
 	.atomic_check = drm_atomic_helper_check,
 	.atomic_commit = drm_atomic_helper_commit,
 };
