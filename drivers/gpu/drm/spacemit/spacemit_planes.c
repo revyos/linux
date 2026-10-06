@@ -16,6 +16,8 @@
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_color_mgmt.h>
 #include <drm/drm_gem.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_gem_shmem_helper.h>
 #include <linux/component.h>
 #include <linux/dma-mapping.h>
 #include "spacemit_cmdlist.h"
@@ -67,8 +69,10 @@ static int spacemit_plane_atomic_check(struct drm_plane *plane,
 	if (ret)
 		return ret;
 
-	if (!state->visible)
+	if (!state->visible) {
+		cur_state->rdma_id = RDMA_INVALID_ID;
 		return 0;
+	}
 
 	a_crtc = to_spacemit_crtc(state->crtc);
 	trace_spacemit_plane_atomic_check(a_crtc->dev_id);
@@ -118,25 +122,7 @@ static int spacemit_plane_atomic_check(struct drm_plane *plane,
 				    state->zpos);
 			return -EINVAL;
 		}
-
-		cur_state->mmu_tbl.size =
-			((PAGE_ALIGN(fb->obj[0]->size) >> PAGE_SHIFT) +
-			 HW_ALIGN_TTB_NUM) * 4;
-		cur_state->mmu_tbl.va =
-			dma_alloc_coherent(a_crtc->dev, cur_state->mmu_tbl.size,
-					   &cur_state->mmu_tbl.pa,
-					   GFP_KERNEL | __GFP_ZERO);
-		if (!cur_state->mmu_tbl.va)
-			return -ENOMEM;
 	}
-
-	/*
-	 * The commit cannot fail, so take the DMA buffer while -ENOMEM is an
-	 * answer.
-	 */
-	ret = spacemit_cmdlist_alloc(a_crtc->dev, &cur_state->cl);
-	if (ret)
-		return ret;
 
 	cur_state->format = spacemit_plane_hw_get_format_id(fb->format->format);
 	if (cur_state->format == SPACEMIT_DPU_INVALID_FORMAT_ID) {
@@ -146,6 +132,38 @@ static int spacemit_plane_atomic_check(struct drm_plane *plane,
 	}
 
 	return 0;
+}
+
+static int spacemit_plane_prepare_fb(struct drm_plane *plane,
+				    struct drm_plane_state *state)
+{
+	struct spacemit_plane_state *pstate = to_spacemit_plane_state(state);
+	struct spacemit_crtc *a_crtc;
+	struct sg_table *sgt;
+	int ret;
+
+	ret = drm_gem_plane_helper_prepare_fb(plane, state);
+	if (ret || !state->visible)
+		return ret;
+
+	a_crtc = to_spacemit_crtc(state->crtc);
+	if (pstate->rdma_id != RDMA_INVALID_ID) {
+		sgt = drm_gem_shmem_get_pages_sgt(to_drm_gem_shmem_obj(state->fb->obj[0]));
+		if (IS_ERR(sgt))
+			return PTR_ERR(sgt);
+
+		pstate->mmu_tbl.size =
+			((PAGE_ALIGN(state->fb->obj[0]->size) >> PAGE_SHIFT) +
+			 HW_ALIGN_TTB_NUM) * 4;
+		pstate->mmu_tbl.va = dma_alloc_coherent(a_crtc->dev,
+					pstate->mmu_tbl.size, &pstate->mmu_tbl.pa,
+					GFP_KERNEL | __GFP_ZERO);
+		if (!pstate->mmu_tbl.va)
+			return -ENOMEM;
+	}
+
+	/* State destruction releases partial allocations if preparation fails. */
+	return spacemit_cmdlist_alloc(a_crtc->dev, &pstate->cl);
 }
 
 static void spacemit_plane_atomic_update(struct drm_plane *plane,
@@ -165,6 +183,11 @@ static void spacemit_plane_atomic_update(struct drm_plane *plane,
 		return;
 
 	trace_spacemit_plane_atomic_update(a_crtc->dev_id);
+
+	if (!plane->state->visible) {
+		hwdev->plane_disable_hw_channel(plane, plane->state);
+		goto out;
+	}
 
 	hwdev->get_cl_rdma_buf(a_crtc);
 
@@ -295,6 +318,7 @@ static void spacemit_plane_create_properties(struct spacemit_plane *p)
 }
 
 static const struct drm_plane_helper_funcs spacemit_plane_helper_funcs = {
+	.prepare_fb = spacemit_plane_prepare_fb,
 	.atomic_check = spacemit_plane_atomic_check,
 	.atomic_update = spacemit_plane_atomic_update,
 	.atomic_disable = spacemit_plane_atomic_disable,
@@ -368,6 +392,7 @@ struct drm_plane *spacemit_plane_init(struct drm_device *drm,
 	}
 
 	drm_plane_helper_add(&p->plane, &spacemit_plane_helper_funcs);
+	drm_plane_enable_fb_damage_clips(&p->plane);
 
 	spacemit_plane_create_properties(p);
 
