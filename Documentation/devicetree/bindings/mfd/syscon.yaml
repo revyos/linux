@@ -214,6 +214,13 @@ properties:
           - ti,j784s4-pcie-ctrl
           - ti,keystone-pllctrl
       - const: syscon
+              - thead,th1520-syscon-ao
+              - thead,th1520-syscon-ap
+              - thead,th1520-syscon-dsp
+              - thead,th1520-syscon-misc
+              - thead,th1520-syscon-vi
+              - thead,th1520-syscon-vo
+              - thead,th1520-syscon-vp
 
   reg:
     maxItems: 1
