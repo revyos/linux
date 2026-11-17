@@ -76,6 +76,13 @@ properties:
           const: syscon
         minItems: 2
         maxItems: 5  # Should be enough
+              - thead,th1520-syscon-ao
+              - thead,th1520-syscon-ap
+              - thead,th1520-syscon-dsp
+              - thead,th1520-syscon-misc
+              - thead,th1520-syscon-vi
+              - thead,th1520-syscon-vo
+              - thead,th1520-syscon-vp
 
   reg:
     maxItems: 1
